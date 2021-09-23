@@ -81,12 +81,16 @@ gulp.task('build:html', function () {
 
     // Perform rendering
     return gulp.src(['src/**/*.html', '!src/**/*.tpl.html'])
-        .pipe(mancha(vars, {
-            fs: fs,
-            encodeHtmlAttrib: mancha.encodeHtmlAttrib,
-            console: console,
-            canonical: null
-        }))
+        .pipe(mancha(
+            vars,
+            {
+                fs: fs,
+                encodeHtmlAttrib: mancha.encodeHtmlAttrib,
+                console: console,
+                canonical: null
+            },
+            './src',
+        ))
         .pipe(gulp.dest('public'));
 });
 
