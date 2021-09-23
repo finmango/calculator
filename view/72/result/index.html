@@ -86,12 +86,13 @@
             // Load data from URL query parameters into the view model
             const data = DataHelper.getQueryData(window.location);
 
+
             // Mount VueJS to the root element
             const app = new Vue({
                 el: '#rule-of-72-result',
                 data: Object.assign({
                     // Initialize data with sensible defaults
-                    wealth: 5_000,
+                    wealth: Number.NaN,
                     investments_net: 5_000,
                     investments_rate: 8,
                     years: 0,
@@ -109,6 +110,9 @@
                     }
                 }
             });
+
+            // Make sure the initial wealth is equal to the net investments]
+            app.wealth = app.investments_net;
         })();
     </script>
 
