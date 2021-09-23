@@ -1,0 +1,25 @@
+<h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+    What are your retirement goals?
+</h2>
+
+<div class="survey-block">
+    <label for="income_target">
+        Annual Target Retirement Income
+    </label>
+    <span class="centered" style="font-size: small;">
+        Annual after-tax target income after retirement.
+    </span>
+    <input id="income_target" v-model="income_target" type="number" pattern="/d*" min="1" value="60000" />
+</div>
+
+<div class="spacer"></div>
+
+<div class="survey-block">
+    <label for="safe_withdrawal_rate">
+        Safe Withdrawal Rate
+    </label>
+    <span class="centered" style="font-size: small;">
+        Percentage of investments that can be withdrawn without a net negative effect. Typically 4%.
+    </span>
+    <input id="safe_withdrawal_rate" v-model="safe_withdrawal_rate" type="number" pattern="/d*" min="0" max="100" value="4" />
+</div>
