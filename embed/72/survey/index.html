@@ -1,0 +1,205 @@
+<!DOCTYPE html><html><!-- HTML head --><head>
+    <!-- HTML metadata -->
+    <meta charset="UTF-8">
+    <title>FinMango FIRE</title>
+    <meta name="description" content="FIRE calculator, made by FinMango">
+    <link rel="icon" type="image/ico" href="../../../../static/favicon.ico">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinMango FIRE">
+
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="../../../../static/favicon.ico">
+
+    <!-- Capabilities-related metadata -->
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+
+    <!-- VueJS -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- Comment the previous line and uncomment this one to enable debug more for VueJS -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> -->
+
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- MomentJS -->
+    <script type="text/javascript" src="../../../../third_party/moment/min/moment.min.js"></script>
+
+    <!-- Custom styles and fonts -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/goldman-sans">
+    <link rel="stylesheet" href="../../../../third_party/picnic/picnic.min.css">
+    <link rel="stylesheet" href="../../../../static/styles.min.css">
+
+    <!-- Polyfills, custom functions and constants -->
+    <script type="text/javascript" src="../../../../static/formatter.min.js"></script>
+    <script type="text/javascript" src="../../../../static/data-helper.min.js"></script>
+    <script type="text/javascript" src="../../../../static/polyfills.min.js"></script>
+    <script type="text/javascript">const DEFAULT_OPTIONS={font:"Goldman Sans",chart_legend_position:"none",chart_padding_top:24,chart_padding_left:64,chart_padding_bottom:48};CURRENT_OPTIONS=Object.keys(DEFAULT_OPTIONS).reduce((t,e)=>Object.assign(t,{[e]:sessionStorage.getItem(e)||DEFAULT_OPTIONS[e]}),{}),GOOGLE_CHARTS_CONFIG=window.GOOGLE_CHARTS_CONFIG||{theme:"material",fontName:CURRENT_OPTIONS.font,colors:["{{theme-primary}}"],legend:{position:CURRENT_OPTIONS.chart_legend_position},chartArea:{width:"100%",height:"100%",top:parseInt(CURRENT_OPTIONS.chart_padding_top||24),left:parseInt(CURRENT_OPTIONS.chart_padding_left||64),bottom:parseInt(CURRENT_OPTIONS.chart_padding_bottom||48)},titlePosition:"in",axisTitlesPosition:"in",hAxis:{textPosition:"bottom",textStyle:{fontName:CURRENT_OPTIONS.font}},vAxis:{textPosition:"out",viewWindow:{min:0},textStyle:{fontName:CURRENT_OPTIONS.font}},height:parseInt(CURRENT_OPTIONS.chart_height||300)};</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-xxxx-4"></script>
+<script async>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-xxxx-4");</script>
+
+
+<!-- Load analytics at the end of the head element before the body -->
+
+
+</head><body>
+    <!-- Survey elements in the order they will be displayed -->
+    <div id="survey-root">
+        <div class="survey-screen animated">
+            <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+    Rule of 72
+</h2>
+
+<p class="survey-block">
+    The <b>rule of 72</b> is a popular formula used to roughly estimate how long it will
+    take for your investments to double in time assuming a constant rate of return.
+</p>
+
+<p class="survey-block">
+    The formula is extremely simple! Just take the number 72 and divide it by the interest
+    rate that you hope to earn from your investments.
+</p>
+
+<p class="survey-block">
+    We'll now ask you a few questions about your personal finances to show you that, even
+    with modest initial savings, you can accumulate a significant amount of wealth.
+</p>
+        </div>
+
+        <div class="survey-screen animated">
+            <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+    Do you have any investments?
+</h2>
+
+<div class="survey-block">
+    <label for="investments_net">
+        Total Invested Amount
+    </label>
+    <input id="investments_net" v-model="investments_net" type="number" pattern="/d*" min="5000" value="5000">
+    <span class="centered" style="font-size: small;">
+        Total money invested in stock market, 401K, etc.
+    </span>
+</div>
+
+<div class="spacer"></div>
+
+<div class="survey-block">
+    <label for="investments_rate">
+        Expected Investment Annual Return Rate
+    </label>
+    <input id="investments_rate" v-model="investments_rate" type="number" pattern="/d*" min="0" max="100" value="9.2">
+    <span class="centered" style="font-size: small;">
+        The average stock market return for a 10-year period is 9.2% per year.
+    </span>
+</div>
+        </div>
+
+        <div class="survey-screen animated">
+            <h2 class="survey-block">
+    Doubling Time
+</h2>
+
+<p class="survey-block">
+    With the expected annual return rate, the <b>rule of 72</b> lets you estimate that your
+    investments will double every <b><span>{{ Formatter.years(72 / Number(this.investments_rate)) }}</span> years</b>.
+</p>
+
+<p class="survey-block">
+    Now let's watch what happens when we take advantage of compounding interest...
+</p>
+        </div>
+    </div>
+
+    <!-- Generous space between survey blocks and the navigation buttons -->
+    <div class="spacer"></div>
+    <div class="spacer"></div>
+
+    <!-- Navigation element including reference to URL to forward the user after survey -->
+    <div id="survey-navigation">
+
+    <div class="navigation-container animated" id="survey-navigation">
+        <div class="centered flex one">
+            <button id="next">NEXT</button>
+            <button onclick="window.location.reload()">START OVER</button>
+        </div>
+    </div>
+
+    <script async>
+        const rootElement = document.currentScript.parentElement;
+        const navElement = rootElement.querySelector('#survey-navigation');
+
+        // Execute all of our code in an async block to allow for top-level await calls and to limit
+        // the scope of any variables that are created here.
+        (async function () {
+
+            // Get all the form data into a dictionary.
+            const data = DataHelper.getFormData(document);
+
+            // Pre-fill the form data with previously seen values (from localStorage).
+            Object.keys(data).forEach(key => {
+                const elem = document.querySelector('#' + key);
+                const value = window.localStorage.getItem(key);
+                if (value) data[key] = value;
+                elem.value = data[key];
+            })
+
+            // If we were given a survey root element, mount a VueJS instance on that
+            // This needs to be done prior to caching any HTML elements since VueJS replaces them
+            let app = null;
+            if ('survey-root' !== '{{' + 'survey-root' + '}}') {
+                const elem = document.querySelector('#survey-root');
+                app = new Vue({
+                    el: '#' + elem.id,
+                    data: Object.assign({}, data, { Formatter: Formatter }),
+                });
+            }
+
+            let screenIdx = 0;
+            const screens = [].filter.call(document.querySelectorAll('div.survey-screen'), el => el !== navElement);
+            rootElement.querySelector('#next').addEventListener('click', event => {
+                if (screenIdx + 1 < screens.length) {
+
+                    // Every time the next button is clicked, move on to the next question.
+                    const currScreen = screens[screenIdx];
+                    const nextScreen = screens[screenIdx + 1];
+
+                    // Display the next survey screen using a transition animation.
+                    currScreen.classList.remove('survey-screen-visible');
+                    nextScreen.classList.add('survey-screen-visible');
+
+                    // Make sure we don't stay focused on the button
+                    document.querySelector(':focus')?.blur()
+
+                    // Fire event and increase screen index
+                    screenIdx++;
+                } else {
+
+                    // Once we reach the end of the survey, send the user to the next screen and
+                    // pass all the form elements as query parameters.
+                    const formData = DataHelper.getFormData(document);
+                    const nextUrl = new URL('../../../../embed/72/result/', window.location.href);
+                    Object.keys(formData).forEach(key => {
+                        const value = formData[key];
+                        // Add all form elements to the parameter set.
+                        nextUrl.searchParams.set(key, value);
+                        // Add all form elements to the local storage.
+                        window.localStorage.setItem(key, value);
+                    });
+                    window.location = nextUrl;
+                }
+            });
+
+            // Animate and display of the first element of the survey.
+            screens[0].classList.add('survey-screen-visible');
+
+            // Animate and display the survey navigation elements.
+            navElement.classList.add('survey-screen-visible');
+        })();
+    </script>
+</div>
+
+
+</body></html>
