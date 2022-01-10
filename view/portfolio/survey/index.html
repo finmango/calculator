@@ -1,14 +1,14 @@
 <!DOCTYPE html><html><!-- HTML head --><head>
     <!-- HTML metadata -->
     <meta charset="UTF-8">
-    <title>FinMango FIRE</title>
-    <meta name="description" content="FIRE calculator, made by FinMango">
+    <title>FinMango Calculator</title>
+    <meta name="description" content="Financial calculator, made by FinMango">
     <link rel="icon" type="image/ico" href="../../../static/favicon.ico">
 
     <!-- Add to homescreen for Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="FinMango FIRE">
+    <meta name="apple-mobile-web-app-title" content="FinMango Calculator">
 
     <!-- Homescreen icons -->
     <link rel="apple-touch-icon" href="../../../static/favicon.ico">
@@ -152,11 +152,13 @@
 </p>
 
 <div class="survey-block centered">
+    <div>
     <label for="dividend_reinvestment">Reinvest Dividends</label>
     <select id="dividend_reinvestment" v-model="dividend_reinvestment">
         <option value="yes" selected>Yes</option>
         <option value="no">No</option>
     </select>
+</div>
 </div>
             </div>
 
@@ -178,14 +180,63 @@
 </p>
 
 <div class="survey-block centered">
-    <label for="rebalance_strategy">Rebalancing Strategy</label>
-    <select id="rebalance_strategy" v-model="rebalance_strategy">
+    <div>
+    <label for="rebalance_schedule">Rebalancing Schedule</label>
+    <select id="rebalance_schedule" v-model="rebalance_schedule">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>
         <option value="quarterly">Quarterly</option>
         <option value="monthly">Monthly</option>
         <option value="daily">Daily</option>
     </select>
+</div>
+</div>
+            </div>
+
+            <div class="survey-screen animated">
+                <h2 class="survey-header">
+    Dollar-Cost Averaging
+</h2>
+
+<p class="survey-block">
+    As you already know, asset values don't go in a straight line. One common strategy to take
+    advantage of market volatility is <b>dollar-cost averaging</b> (DCA). Instead of investing all
+    of your wealth into your portfolio as one lump-sum, you can instead slowly add the assets to
+    your portfolio at regular intervals. The strategy works like this:
+</p>
+
+<p class="survey-block">
+    When the markets are up (and potentially overvalued) then you will acquire less of the assets.
+    When the markets are down (and potentially undervalued) then the same amount of money will let
+    you acquire more assets.
+</p>
+
+<p class="survey-block">
+    In many cases, DCA is a strategy that is implemented naturally. For example, this can be done
+    by utilizing a portion of your paycheck. Another benefit of this strategy is that it allows you
+    to (at least partially) rebalance your portfolio without selling any assets, which provides a
+    great advantage from a tax perspective.
+</p>
+
+<div class="survey-block centered">
+    <div>
+    <label for="dca_schedule">Dollar-Cost Averaging Schedule</label>
+    <select id="dca_schedule" v-model="dca_schedule">
+        <option value="never" selected>Never</option>
+        <option value="yearly">Yearly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="monthly">Monthly</option>
+    </select>
+</div>
+<div v-show="dca_schedule !== 'never'">
+    <label for="dca_percent">Percentage of Initial Investment</label>
+    <span class="centered" style="font-size: small;">
+        Percentage of the initial investment being added to your portfolio at regular intervals.
+        For example, if the initial investment was $100 and you plan on adding $10 monthly,
+        enter 10%.
+    </span>
+    <input id="dca_percent" v-model="dca_percent" type="number" pattern="/d*" min="0" max="100" value="0">
+</div>
 </div>
             </div>
 

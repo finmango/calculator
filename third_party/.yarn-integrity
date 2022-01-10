@@ -286,7 +286,7 @@
     "colors@1.0.3": "https://registry.yarnpkg.com/colors/-/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b",
     "colors@1.0.x": "https://registry.yarnpkg.com/colors/-/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b",
     "colors@1.3.2": "https://registry.yarnpkg.com/colors/-/colors-1.3.2.tgz#2df8ff573dfbf255af562f8ce7181d6b971a359b",
-    "colors@^1.1.2": "https://registry.yarnpkg.com/colors/-/colors-1.4.2.tgz#cd4fe227412ca2c75bb6f5683ec2e5e68de4f317",
+    "colors@^1.1.2": "https://registry.yarnpkg.com/colors/-/colors-1.4.0.tgz#c50491479d4c1bdaed2c9ced32cf7c7dc2360f78",
     "combined-stream@^1.0.6": "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f",
     "combined-stream@~1.0.6": "https://registry.yarnpkg.com/combined-stream/-/combined-stream-1.0.8.tgz#c3d45a8b34fd730631a110a8a2520682b31d5a7f",
     "commander@2.17.1": "https://registry.yarnpkg.com/commander/-/commander-2.17.1.tgz#bd77ab7de6de94205ceacc72f1716d29f20a77bf",
