@@ -127,17 +127,9 @@
                     return alloc;
                 },
                 temp: function () {
-                    if (this.debouncer) clearTimeout(this.debouncer);
-                    this.debouncer = setTimeout(() => {
-                        const tmp = this.target_allocations;
-                        this.target_allocations = null;
-                        this.target_allocations = tmp;
-                    }, 10);
-                },
-                rebalance: function (C) {
-                    const alloc = this.alloc();
-                    const total = Object.keys(alloc).reduce((total, symbol) => total + C[symbol], 0);
-                    Object.entries(alloc).forEach(([symbol, weight]) => C[symbol] = total * weight);
+                    const tmp = this.target_allocations;
+                    this.target_allocations = null;
+                    this.target_allocations = tmp;
                 },
                 meetsSchedule: function (returns, schedule) {
                     const quarter = month => 1 + Math.floor((Number(month) - 1) / 3);
@@ -166,7 +158,12 @@
                     }
                     throw new Error(`Unknown rebalancing strategy: ${schedule}`);
                 },
-                update: async function () {
+                update: async function (debounce = true) {
+                    if (this.debouncer) clearTimeout(this.debouncer);
+                    if (debounce) {
+                        this.debouncer = setTimeout(() => { this.update(false) }, 1_000);
+                        return;
+                    }
 
                     const alloc = this.alloc();
                     if (Object.values(alloc).reduce((total, val) => total + val, 0) !== 1) {
@@ -199,7 +196,6 @@
 
                         // DCA if schedule requests it
                         if (this.meetsSchedule(returns, this.dca_schedule.toLowerCase())) {
-                            const alloc = this.alloc();
                             Object.entries(alloc).forEach(([symbol, weight]) =>
                                 C[symbol] += this.dca_percent / 100 / symbols.length);
                         }
@@ -207,7 +203,8 @@
                         // Rebalance the portfolio if needed
                         if (this.meetsSchedule(returns, this.rebalance_schedule.toLowerCase())) {
                             performance.Rebalances++;
-                            this.rebalance(C)
+                            const total = symbols.reduce((total, symbol) => total + C[symbol], 0);
+                            Object.entries(alloc).forEach(([symbol, weight]) => C[symbol] = total * weight);
                         }
 
                         // Keep track of rolling performance
