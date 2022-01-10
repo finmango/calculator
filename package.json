@@ -1,6 +1,6 @@
 {
-  "displayName": "FinMango FIRE",
-  "description": "FIRE calculator, made by FinMango",
+  "displayName": "FinMango Calculator",
+  "description": "Financial calculator, made by FinMango",
   "vars": {
     "analytics": "UA-xxxx-4",
     "email": "oscar@finmango.org",

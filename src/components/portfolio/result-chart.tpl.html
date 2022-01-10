@@ -19,19 +19,19 @@
                 <th>Max</th>
                 <th>Min</th>
             </tr>
-            <tr>
+            <tr v-show="portfolio_performance['1 Year'].avg">
                 <td>1 Year</td>
                 <td>{{ Formatter.percent(portfolio_performance['1 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(portfolio_performance['1 Year'].max, true) }}</td>
                 <td>{{ Formatter.percent(portfolio_performance['1 Year'].min, true) }}</td>
             </tr>
-            <tr>
+            <tr v-show="portfolio_performance['5 Year'].avg">
                 <td>5 Years</td>
                 <td>{{ Formatter.percent(portfolio_performance['5 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(portfolio_performance['5 Year'].max, true) }}</td>
                 <td>{{ Formatter.percent(portfolio_performance['5 Year'].min, true) }}</td>
             </tr>
-            <tr>
+            <tr v-show="portfolio_performance['10 Year'].avg">
                 <td>10 Years</td>
                 <td>{{ Formatter.percent(portfolio_performance['10 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(portfolio_performance['10 Year'].max, true) }}</td>
@@ -50,20 +50,11 @@
 
             <form class="flex one two-600">
 
-                <div>
-                    <label for="rebalance_strategy">Rebalancing Strategy</label>
-                    <select v-model="rebalance_strategy">
-                        <option v-bind:value="strat.toLowerCase()" v-for="strat in strategies">{{ strat }}</option>
-                    </select>
-                </div>
+                <script data-include src="rebalance-form.tpl.html"></script>
 
-                <div>
-                    <label for="dividend_reinvestment">Dividend Reinvestment</label>
-                    <select v-model="dividend_reinvestment">
-                        <option v-bind:value="opt" v-for="opt in ['yes', 'no']">
-                            {{ (opt.charAt(0).toUpperCase() + opt.slice(1)) }}</option>
-                    </select>
-                </div>
+                <script data-include src="dca-form.tpl.html"></script>
+
+                <script data-include src="div-form.tpl.html"></script>
 
                 <div>
                     <label for="start_date">Simulation Start Date</label>
@@ -111,9 +102,11 @@
             data: {
                 error_message: null,
                 target_allocations: {},
-                rebalance_strategy: 'yearly',
-                strategies: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
+                rebalance_schedule: 'yearly',
+                schedules: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
                 dividend_reinvestment: 'yes',
+                dca_schedule: 'never',
+                dca_percent: 0,
                 start_date: '1995-01-01',
                 end_date: new Date().toISOString().slice(0, 10),
                 portfolio_returns: 0,
@@ -146,22 +139,21 @@
                     const total = Object.keys(alloc).reduce((total, symbol) => total + C[symbol], 0);
                     Object.entries(alloc).forEach(([symbol, weight]) => C[symbol] = total * weight);
                 },
-                needsRebalancing: function (returns) {
+                meetsSchedule: function (returns, schedule) {
                     const quarter = month => 1 + Math.floor((Number(month) - 1) / 3);
-                    const strat = String(this.rebalance_strategy).toLocaleLowerCase();
                     const tokenizeDate = date => date.toISOString().slice(0, 10).split('-');
-                    if (strat === 'never' || returns.length < 2)
+                    if (schedule === 'never' || returns.length < 2)
                         return false;
-                    if (strat === 'yearly')
+                    if (schedule === 'yearly')
                         return tokenizeDate(returns.at(-1).Date)[0] !== tokenizeDate(returns.at(-2).Date)[0];
-                    if (strat === 'quarterly')
+                    if (schedule === 'quarterly')
                         return quarter(tokenizeDate(returns.at(-1).Date)[1]) !== quarter(tokenizeDate(returns.at(-2).Date)[1]);
-                    if (strat === 'monthly')
+                    if (schedule === 'monthly')
                         return tokenizeDate(returns.at(-1).Date)[1] !== tokenizeDate(returns.at(-2).Date)[1];
-                    if (strat === 'daily')
+                    if (schedule === 'daily')
                         return true;
-                    if (strat.endsWith('% threshold')) {
-                        const threshold = parseInt(strat.split('%')[0]) / 100;
+                    if (schedule.endsWith('% threshold')) {
+                        const threshold = parseInt(schedule.split('%')[0]) / 100;
                         const currentValues = this.alloc.map(symbol => [symbol, returns.at(-1)[symbol]]);
                         const totalAssets = currentValues.reduce((total, [_, val]) => total + val, 0);
                         for (const [symbol, val] of currentValues) {
@@ -172,7 +164,7 @@
                         }
                         return false;
                     }
-                    throw new Error(`Unknown rebalancing strategy: ${strat}`);
+                    throw new Error(`Unknown rebalancing strategy: ${schedule}`);
                 },
                 update: async function () {
 
@@ -195,7 +187,6 @@
                         .filter(row => row.Date.localeCompare(this.end_date) <= 0)
                         .filter(row => symbols.every(symbol => !isNaN(row[symbol])));
 
-                    // Use an iterative process to compute estimated returns
                     const returns = [];
                     const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0 };
                     const C = Object.assign({ Total: 1, Max: 1 }, alloc);
@@ -206,8 +197,15 @@
                         symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
                         returns.push(Object.assign({ Date: new Date(x.Date) }, C));
 
+                        // DCA if schedule requests it
+                        if (this.meetsSchedule(returns, this.dca_schedule.toLowerCase())) {
+                            const alloc = this.alloc();
+                            Object.entries(alloc).forEach(([symbol, weight]) =>
+                                C[symbol] += this.dca_percent / 100 / symbols.length);
+                        }
+
                         // Rebalance the portfolio if needed
-                        if (this.needsRebalancing(returns)) {
+                        if (this.meetsSchedule(returns, this.rebalance_schedule.toLowerCase())) {
                             performance.Rebalances++;
                             this.rebalance(C)
                         }
@@ -225,7 +223,7 @@
                         });
                     }
 
-                    this.portfolio_returns = Math.round(C.Total - 1 * 100) / 100;
+                    this.portfolio_returns = Math.round((C.Total - 1) * 100) / 100;
 
                     [1, 5, 10].forEach(year => {
                         const key = `${year} Year`;
