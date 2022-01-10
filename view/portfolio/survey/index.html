@@ -304,6 +304,9 @@
                         // Make sure we don't stay focused on the button
                         document.querySelector(':focus')?.blur()
 
+                        // Scroll to the top of the screen
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
                         // Fire event and increase screen index
                         screenIdx++;
                     } else {
