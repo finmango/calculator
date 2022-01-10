@@ -1,0 +1,243 @@
+<div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <div id="portfolio-calculator-data">
+
+        <div>
+            <h2 v-if="error" class="centered" style="text-transform: uppercase;">{{error}}</h2>
+            <h2 v-else class="centered" style="text-transform: uppercase;">
+                The total returns for the simulated period are
+                <br />
+                <span style="font-size: xx-large;">{{ Math.round(Number(portfolio_returns) * 100) }}%</span>
+            </h2>
+        </div>
+
+        <!-- Element host for the Google Chart -->
+        <div v-hide="!!error" id="chart-container" class="chart-container"></div>
+
+        <div class="spacer"></div>
+
+        <details>
+            <summary>Calculator Options</summary>
+
+            <form class="flex one two-600">
+
+                <div>
+                    <label for="rebalance_strategy">Rebalancing Strategy</label>
+                    <select v-model="rebalance_strategy">
+                        <option v-bind:value="strat.toLowerCase()" v-for="strat in strategies">{{ strat }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="dividend_reinvestment">Dividend Reinvestment</label>
+                    <select v-model="dividend_reinvestment">
+                        <option v-bind:value="opt" v-for="opt in ['yes', 'no']">
+                            {{ (opt.charAt(0).toUpperCase() + opt.slice(1)) }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="start_date">Simulation Start Date</label>
+                    <input type="date" v-model="start_date" min="1975-01-01" />
+                </div>
+
+                <div>
+                    <label for="start_date">Simulation End Date</label>
+                    <input type="date" v-model="end_date" min="1975-01-01" />
+                </div>
+
+                <div>
+                    <label for="target_allocations">Target Allocations</label>
+                    <div id="target_allocations">
+                        <div v-for="(value, symbol) in target_allocations">
+                            <label for="{{ symbol }}">
+                                <small>{{ target_allocations[symbol] }}% {{ symbol }}</small>
+                            </label>
+                            <input @input="temp()" type="range" v-model.number="target_allocations[symbol]" min="0"
+                                max="100" step="5">
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </details>
+    </div>
+
+    <script async>
+        function csv2json(url) {
+            return new Promise(resolve =>
+                Papa.parse(url, { download: true, complete: resolve })
+            ).then(res => res.data).then(rows => rows.slice(1).map(row =>
+                rows[0].reduce((agg, col, idx) =>
+                    Object.assign(agg, { [col]: col === 'Date' ? row[idx] : parseFloat(row[idx]) }), {})
+            ));
+        }
+
+        // Reference to outer element
+        const rootElement = document.currentScript.parentElement;
+
+        // Mount VueJS to the root element
+        const app = new Vue({
+            el: '#portfolio-calculator-data',
+            data: {
+                error: null,
+                target_allocations: {},
+                rebalance_strategy: 'yearly',
+                strategies: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
+                dividend_reinvestment: 'yes',
+                start_date: '1995-01-01',
+                end_date: new Date().toISOString().slice(0, 10),
+                portfolio_returns: 0,
+                debouncer: null,
+            },
+            computed: {
+            },
+            watch: {
+            },
+            methods: {
+                alloc: function () {
+                    const alloc = {};
+                    for (const [symbol, val] of Object.entries(data.target_allocations)) {
+                        if (val > 0) alloc[symbol] = val / 100;
+                    }
+                    return alloc;
+                },
+                temp: function () {
+                    if (this.debouncer) clearTimeout(this.debouncer);
+                    this.debouncer = setTimeout(() => {
+                        const tmp = this.target_allocations;
+                        this.target_allocations = null;
+                        this.target_allocations = tmp;
+                    }, 10);
+                },
+                rebalance: function (C) {
+                    const alloc = this.alloc();
+                    const total = Object.keys(alloc).reduce((total, symbol) => total + C[symbol], 0);
+                    Object.entries(alloc).forEach(([symbol, weight]) => C[symbol] = total * weight);
+                },
+                needsRebalancing: function (returns) {
+                    const strat = String(this.rebalance_strategy).toLocaleLowerCase();
+                    const tokenizeDate = date => date.toISOString().slice(0, 10).split('-');
+                    if (strat === 'never' || returns.length < 2)
+                        return false;
+                    if (strat === 'yearly')
+                        return tokenizeDate(returns.at(-1).Date)[0] !== tokenizeDate(returns.at(-2).Date)[0];
+                    if (strat === 'quarterly')
+                        return false; // TODO
+                    if (strat === 'monthly')
+                        return tokenizeDate(returns.at(-1).Date)[1] !== tokenizeDate(returns.at(-2).Date)[1];
+                    if (strat === 'daily')
+                        return true;
+                    if (strat.endsWith('% threshold')) {
+                        const threshold = parseInt(strat.split('%')[0]) / 100;
+                        const currentValues = this.alloc.map(symbol => [symbol, returns.at(-1)[symbol]]);
+                        const totalAssets = currentValues.reduce((total, [_, val]) => total + val, 0);
+                        for (const [symbol, val] of currentValues) {
+                            const ratio = val / totalAssets;
+                            const target = this.alloc[symbol];
+                            const diff = Math.abs(ratio - target) / target;
+                            if (Math.abs(ratio - target) / target > threshold) return true;
+                        }
+                        return false;
+                    }
+                    throw new Error(`Unknown rebalancing strategy: ${strat}`);
+                },
+                update: async function () {
+                    const chartElem = rootElement.querySelector('#chart-container');
+
+                    const alloc = this.alloc();
+                    if (Object.values(alloc).reduce((total, val) => total + val, 0) !== 1) {
+                        this.error = 'Total allocations must be equal to 100%';
+                        chartElem.innerHTML = '';
+                        return;
+                    } else {
+                        this.error = null;
+                    }
+
+                    // Load Google Charts asynchronously on demand
+                    await google.charts.load('current', { packages: ['corechart'] });
+
+                    // Wait for the historical data to be fully loaded
+                    const symbols = Object.keys(alloc).sort((a, b) => alloc[a] - alloc[b]);
+                    const reinvest = this.dividend_reinvestment === 'yes';
+                    const history = (await (reinvest ? this.daily_returns_reinvested : this.daily_returns))
+                        .filter(row => row.Date.localeCompare(this.start_date) >= 0)
+                        .filter(row => row.Date.localeCompare(this.end_date) <= 0)
+                        .filter(row => symbols.every(symbol => !isNaN(row[symbol])));
+
+                    // Use an iterative process to compute estimated returns
+                    const returns = [];
+                    const performance = { '1 Year': {}, '5 Year': {}, '10 Year': {}, 'Rebalances': 0 };
+                    const C = JSON.parse(JSON.stringify(alloc));
+                    for (const x of history) {
+                        C.Total = symbols.reduce((total, symbol) => total + C[symbol], 0);
+                        symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
+                        returns.push(Object.assign({ Date: new Date(x.Date) }, C));
+
+                        // Rebalance the portfolio if needed
+                        if (this.needsRebalancing(returns)) {
+                            performance.Rebalances++;
+                            this.rebalance(C)
+                        }
+                    }
+
+                    this.portfolio_returns = C.Total;
+                    console.log(returns);
+                    console.log(performance);
+
+                    // // Used as a shorthand to compute the tooltip displayed on hover
+                    // const tooltip = x =>
+                    //     `${ x['date']}\n` +
+                    //     `${ Formatter.price(x['networth']) } Net Worth\n` +
+                    //     `${ Formatter.price(x['investments']) } Investments\n` +
+                    //     `${ Formatter.price(x['debt']) } Debt`;
+
+                    const table = new google.visualization.DataTable();
+                    table.addColumn({ label: 'Date', type: 'date' });
+                    symbols.forEach(symbol => table.addColumn({ label: symbol, type: 'number' }));
+                    // dataTable.addColumn({ type: 'string', role: 'tooltip' });
+                    table.addRows(returns.map(row => ['Date'].concat(symbols).map(symbol => row[symbol])));// Object.values(row)));
+
+                    const chartObject = new google.visualization.AreaChart(chartElem);
+                    chartObject.draw(table, Object.assign({}, GOOGLE_CHARTS_CONFIG, {
+                        title: symbols.map(symbol => `${this.target_allocations[symbol]}% ${symbol}`).join(' · '),
+                        curveType: 'function',
+                        isStacked: true,
+                        focusTarget: 'category',
+                        colors: null,
+                        hAxis: { format: 'MM/yyyy', gridlines: { count: 50 }, ...GOOGLE_CHARTS_CONFIG.hAxis },
+                        // intervals: { 'style': 'area' },
+                        interpolateNulls: true,
+                        // annotations: {
+                        //     style: 'line'
+                        // },
+                    }));
+
+                    // Hide loading spinner
+                    chartElem.style.backgroundImage = 'none';
+                }
+            }
+        });
+
+        // Load data from URL query parameters into the view model
+        const data = DataHelper.getQueryData(window.location);
+        data.target_allocations = JSON.parse(data.target_allocations || '{"SPY": 80, "TLT": 20}');
+        Object.assign(app, data);
+
+        // Load data from remote JSON file
+        const urlBase = 'https://finmango.github.io/portfolio-simulator';
+        app.daily_returns = csv2json(`${urlBase}/daily-returns.csv`);
+        app.daily_returns_reinvested = csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`);
+
+        app.daily_returns.then(rows => Object.keys(rows[0]).filter(symbol => symbol !== 'Date').forEach(symbol =>
+            data.target_allocations[symbol] = data.target_allocations[symbol] || 0));
+
+        // Ask VueJS to reload anytime any of the data changes
+        Object.keys(data).forEach(key => app.$watch(key, function () { this.update() }, { deep: true }));
+
+        // Make sure load is triggered even if we didn't pass any data
+        app.update();
+    </script>
+</div>
