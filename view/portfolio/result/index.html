@@ -64,16 +64,43 @@
     <div id="portfolio-calculator-data">
 
         <div>
-            <h2 v-if="error" class="centered" style="text-transform: uppercase;">{{error}}</h2>
+            <h2 v-if="error_message" class="centered" style="text-transform: uppercase;">{{error_message}}</h2>
             <h2 v-else class="centered" style="text-transform: uppercase;">
-                The total returns for the simulated period are
-                <br>
-                <span style="font-size: xx-large;">{{ Math.round(Number(portfolio_returns) * 100) }}%</span>
+                The total returns for the simulated period are {{ Formatter.percent(portfolio_returns) }}
             </h2>
         </div>
 
-        <!-- Element host for the Google Chart -->
-        <div v-hide="!!error" id="chart-container" class="chart-container"></div>
+        <!-- Summary simulation statistics -->
+        <table :class="{invisible: error_message !== null}" class="centered" style="display: table; font-size: small">
+            <tbody><tr>
+                <th>Period</th>
+                <th>Average</th>
+                <th>Max</th>
+                <th>Min</th>
+            </tr>
+            <tr>
+                <td>1 Year</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].min, true) }}</td>
+            </tr>
+            <tr>
+                <td>5 Years</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].min, true) }}</td>
+            </tr>
+            <tr>
+                <td>10 Years</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].min, true) }}</td>
+            </tr>
+        </tbody></table>
+
+        <!-- Element host for the Google Charts -->
+        <div :class="{invisible: error_message !== null}" id="perf-chart-container" class="chart-container"></div>
+        <div :class="{invisible: error_message !== null}" id="drawdown-chart-container" class="chart-container"></div>
 
         <div class="spacer"></div>
 
@@ -99,12 +126,12 @@
 
                 <div>
                     <label for="start_date">Simulation Start Date</label>
-                    <input type="date" v-model="start_date" min="1975-01-01">
+                    <input type="date" v-model="start_date" min="1975-01-01" @change="update()">
                 </div>
 
                 <div>
                     <label for="start_date">Simulation End Date</label>
-                    <input type="date" v-model="end_date" min="1975-01-01">
+                    <input type="date" v-model="end_date" min="1975-01-01" @change="update()">
                 </div>
 
                 <div>
@@ -123,7 +150,7 @@
         </details>
     </div>
 
-    <script async>function csv2json(t){return new Promise(e=>Papa.parse(t,{download:!0,complete:e})).then(t=>t.data).then(t=>t.slice(1).map(e=>t[0].reduce((t,a,r)=>Object.assign(t,{[a]:"Date"===a?e[r]:parseFloat(e[r])}),{})))}const rootElement=document.currentScript.parentElement,app=new Vue({el:"#portfolio-calculator-data",data:{error:null,target_allocations:{},rebalance_strategy:"yearly",strategies:["Never","Yearly","Quarterly","Monthly","Daily"],dividend_reinvestment:"yes",start_date:"1995-01-01",end_date:(new Date).toISOString().slice(0,10),portfolio_returns:0,debouncer:null},computed:{},watch:{},methods:{alloc:function(){const t={};for(const[e,a]of Object.entries(data.target_allocations))a>0&&(t[e]=a/100);return t},temp:function(){this.debouncer&&clearTimeout(this.debouncer),this.debouncer=setTimeout(()=>{const t=this.target_allocations;this.target_allocations=null,this.target_allocations=t},10)},rebalance:function(t){const e=this.alloc(),a=Object.keys(e).reduce((e,a)=>e+t[a],0);Object.entries(e).forEach(([e,r])=>t[e]=a*r)},needsRebalancing:function(t){const e=String(this.rebalance_strategy).toLocaleLowerCase(),a=t=>t.toISOString().slice(0,10).split("-");if("never"===e||t.length<2)return!1;if("yearly"===e)return a(t.at(-1).Date)[0]!==a(t.at(-2).Date)[0];if("quarterly"===e)return!1;if("monthly"===e)return a(t.at(-1).Date)[1]!==a(t.at(-2).Date)[1];if("daily"===e)return!0;if(e.endsWith("% threshold")){const a=parseInt(e.split("%")[0])/100,r=this.alloc.map(e=>[e,t.at(-1)[e]]),n=r.reduce((t,[e,a])=>t+a,0);for(const[t,e]of r){const r=e/n,o=this.alloc[t];Math.abs(r-o);if(Math.abs(r-o)/o>a)return!0}return!1}throw new Error(`Unknown rebalancing strategy: ${e}`)},update:async function(){const t=rootElement.querySelector("#chart-container"),e=this.alloc();if(1!==Object.values(e).reduce((t,e)=>t+e,0))return this.error="Total allocations must be equal to 100%",void(t.innerHTML="");this.error=null,await google.charts.load("current",{packages:["corechart"]});const a=Object.keys(e).sort((t,a)=>e[t]-e[a]),r="yes"===this.dividend_reinvestment,n=(await(r?this.daily_returns_reinvested:this.daily_returns)).filter(t=>t.Date.localeCompare(this.start_date)>=0).filter(t=>t.Date.localeCompare(this.end_date)<=0).filter(t=>a.every(e=>!isNaN(t[e]))),o=[],s={"1 Year":{},"5 Year":{},"10 Year":{},Rebalances:0},l=JSON.parse(JSON.stringify(e));for(const t of n)l.Total=a.reduce((t,e)=>t+l[e],0),a.forEach(e=>l[e]*=1+t[e]),o.push(Object.assign({Date:new Date(t.Date)},l)),this.needsRebalancing(o)&&(s.Rebalances++,this.rebalance(l));this.portfolio_returns=l.Total-1,console.log(o),console.log(s);const i=new google.visualization.DataTable;i.addColumn({label:"Date",type:"date"}),a.forEach(t=>i.addColumn({label:t,type:"number"})),i.addRows(o.map(t=>["Date"].concat(a).map(e=>t[e]))),new google.visualization.AreaChart(t).draw(i,Object.assign({},GOOGLE_CHARTS_CONFIG,{title:a.map(t=>`${this.target_allocations[t]}% ${t}`).join(" · "),curveType:"function",isStacked:!0,focusTarget:"category",colors:null,hAxis:{format:"MM/yyyy",gridlines:{count:50},...GOOGLE_CHARTS_CONFIG.hAxis},interpolateNulls:!0})),t.style.backgroundImage="none"}}}),data=DataHelper.getQueryData(window.location);data.target_allocations=(data.target_allocations||"SPY:100").split(",").reduce((t,e)=>{const[a,r]=e.split(":",2);return Object.assign(t,{[a]:parseInt(r)||0})},{}),Object.assign(app,data);const urlBase="https://finmango.github.io/portfolio-simulator";app.daily_returns=csv2json(`${urlBase}/daily-returns.csv`),app.daily_returns_reinvested=csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`),app.daily_returns.then(t=>Object.keys(t[0]).filter(t=>"Date"!==t).forEach(t=>data.target_allocations[t]=data.target_allocations[t]||0)),Object.keys(data).forEach(t=>app.$watch(t,function(){this.update()},{deep:!0})),app.update();</script>
+    <script async>function csv2json(t){return new Promise(e=>Papa.parse(t,{download:!0,complete:e})).then(t=>t.data).then(t=>t.slice(1).map(e=>t[0].reduce((t,a,o)=>Object.assign(t,{[a]:"Date"===a?e[o]:parseFloat(e[o])}),{})))}const rootElement=document.currentScript.parentElement,app=new Vue({el:"#portfolio-calculator-data",data:{error_message:null,target_allocations:{},rebalance_strategy:"yearly",strategies:["Never","Yearly","Quarterly","Monthly","Daily"],dividend_reinvestment:"yes",start_date:"1995-01-01",end_date:(new Date).toISOString().slice(0,10),portfolio_returns:0,portfolio_performance:{"1 Year":{},"5 Year":{},"10 Year":{}},debouncer:null,Formatter:Formatter},computed:{},watch:{},methods:{alloc:function(){const t={};for(const[e,a]of Object.entries(data.target_allocations))a>0&&(t[e]=a/100);return t},temp:function(){this.debouncer&&clearTimeout(this.debouncer),this.debouncer=setTimeout(()=>{const t=this.target_allocations;this.target_allocations=null,this.target_allocations=t},10)},rebalance:function(t){const e=this.alloc(),a=Object.keys(e).reduce((e,a)=>e+t[a],0);Object.entries(e).forEach(([e,o])=>t[e]=a*o)},needsRebalancing:function(t){const e=String(this.rebalance_strategy).toLocaleLowerCase(),a=t=>t.toISOString().slice(0,10).split("-");if("never"===e||t.length<2)return!1;if("yearly"===e)return a(t.at(-1).Date)[0]!==a(t.at(-2).Date)[0];if("quarterly"===e)return!1;if("monthly"===e)return a(t.at(-1).Date)[1]!==a(t.at(-2).Date)[1];if("daily"===e)return!0;if(e.endsWith("% threshold")){const a=parseInt(e.split("%")[0])/100,o=this.alloc.map(e=>[e,t.at(-1)[e]]),r=o.reduce((t,[e,a])=>t+a,0);for(const[t,e]of o){const o=e/r,n=this.alloc[t];Math.abs(o-n);if(Math.abs(o-n)/n>a)return!0}return!1}throw new Error(`Unknown rebalancing strategy: ${e}`)},update:async function(){const t=this.alloc();if(1!==Object.values(t).reduce((t,e)=>t+e,0))return void(this.error_message="Total allocations must be equal to 100%");this.error_message=null,await google.charts.load("current",{packages:["corechart"]});const e=Object.keys(t).sort((e,a)=>t[e]-t[a]),a="yes"===this.dividend_reinvestment,o=(await(a?this.daily_returns_reinvested:this.daily_returns)).filter(t=>t.Date.localeCompare(this.start_date)>=0).filter(t=>t.Date.localeCompare(this.end_date)<=0).filter(t=>e.every(e=>!isNaN(t[e]))),r=[],n={"1 Year":[],"5 Year":[],"10 Year":[],Rebalances:0},s=Object.assign({Total:1,Max:1},t);for(const t of o)s.Total=e.reduce((t,e)=>t+s[e],0),s.Max=Math.max(s.Max,s.Total),s.Drawdown=Math.min(0,(s.Total-s.Max)/s.Max),e.forEach(e=>s[e]*=1+t[e]),r.push(Object.assign({Date:new Date(t.Date)},s)),this.needsRebalancing(r)&&(n.Rebalances++,this.rebalance(s)),[1,5,10].forEach(t=>{const e=`${t} Year`,a=365*t;if(r.length>a){const t=r.at(-a),o=(s.Total-t.Total)/t.Total;n[e].push(o)}});this.portfolio_returns=Math.round(s.Total-100)/100,[1,5,10].forEach(t=>{const e=`${t} Year`,a=n[e].reduce((t,e)=>t+e,0),o=t=>Math.round(1e3*t)/1e3;this.portfolio_performance[e].avg=o(a/n[e].length),this.portfolio_performance[e].max=o(Math.max(...n[e])),this.portfolio_performance[e].min=o(Math.min(...n[e]))}),console.log(r),console.log(n);const l=e.map(t=>`${this.target_allocations[t]}% ${t}`).join(" · "),i=new google.visualization.DataTable;i.addColumn({label:"Date",type:"date"}),e.forEach(t=>i.addColumn({label:t,type:"number"})),i.addRows(r.map(t=>["Date"].concat(e).map(e=>t[e])));const c=new google.visualization.DataTable;c.addColumn({label:"Date",type:"date"}),c.addColumn({label:"Drawdown",type:"number"}),c.addRows(r.map(t=>[t.Date,t.Drawdown]));const d=rootElement.querySelector("#perf-chart-container");new google.visualization.AreaChart(d).draw(i,Object.assign({},GOOGLE_CHARTS_CONFIG,{title:`${l} Performance`,curveType:"function",isStacked:!0,focusTarget:"category",colors:null,hAxis:{format:"MM/yyyy",gridlines:{count:50},...GOOGLE_CHARTS_CONFIG.hAxis},interpolateNulls:!0}));const u=rootElement.querySelector("#drawdown-chart-container");new google.visualization.AreaChart(u).draw(c,Object.assign({},GOOGLE_CHARTS_CONFIG,{title:`${l} Drawdown`,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{format:"MM/yyyy",gridlines:{count:50},...GOOGLE_CHARTS_CONFIG.hAxis},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,viewWindow:{max:0,min:-1}},interpolateNulls:!0})),d.style.backgroundImage="none"}}}),data=DataHelper.getQueryData(window.location);data.target_allocations=(data.target_allocations||"SPY:100").split(",").reduce((t,e)=>{const[a,o]=e.split(":",2);return Object.assign(t,{[a]:parseInt(o)||0})},{}),Object.assign(app,data);const urlBase="https://finmango.github.io/portfolio-simulator";app.daily_returns=csv2json(`${urlBase}/daily-returns.csv`),app.daily_returns_reinvested=csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`),app.daily_returns.then(t=>Object.keys(t[0]).filter(t=>"Date"!==t).forEach(t=>data.target_allocations[t]=data.target_allocations[t]||0)),Object.keys(data).forEach(t=>app.$watch(t,function(){this.update()},{deep:!0})),app.update();</script>
 </div>
     </main>
 
