@@ -266,6 +266,7 @@
                         focusTarget: 'category',
                         colors: null,
                         hAxis: { ...GOOGLE_CHARTS_CONFIG.hAxis, format: 'MM/yyyy', gridlines: { count: 50 } },
+                        vAxis: { ...GOOGLE_CHARTS_CONFIG.vAxis, textPosition: 'in' },
                         interpolateNulls: true,
                         chartArea: { ...GOOGLE_CHARTS_CONFIG.chartArea, left: 0 },
 
@@ -278,7 +279,7 @@
                         focusTarget: 'category',
                         colors: ['red'],
                         hAxis: { ...GOOGLE_CHARTS_CONFIG.hAxis, format: 'MM/yyyy', gridlines: { count: 50 } },
-                        vAxis: { ...GOOGLE_CHARTS_CONFIG.vAxis, viewWindow: { max: 0, min: -1 } },
+                        vAxis: { ...GOOGLE_CHARTS_CONFIG.vAxis, textPosition: 'in', viewWindow: { max: 0, min: -1 } },
                         interpolateNulls: true,
                         chartArea: { ...GOOGLE_CHARTS_CONFIG.chartArea, left: 0 },
                     }));
