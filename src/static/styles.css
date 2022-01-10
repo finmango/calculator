@@ -35,7 +35,7 @@ b, h1, h2, h3 {
     color: var(--theme-primary, #82A8E5);
 }
 
-.background-colored {
+.background-colored, th {
     background-color: var(--theme-primary, #82A8E5);
 }
 
@@ -214,3 +214,7 @@ button.centered {
     .hide-s {
         display: none;
 }}
+
+.invisible {
+    visibility: hidden;
+}

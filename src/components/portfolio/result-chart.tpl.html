@@ -5,16 +5,43 @@
     <div id="portfolio-calculator-data">
 
         <div>
-            <h2 v-if="error" class="centered" style="text-transform: uppercase;">{{error}}</h2>
+            <h2 v-if="error_message" class="centered" style="text-transform: uppercase;">{{error_message}}</h2>
             <h2 v-else class="centered" style="text-transform: uppercase;">
-                The total returns for the simulated period are
-                <br />
-                <span style="font-size: xx-large;">{{ Math.round(Number(portfolio_returns) * 100) }}%</span>
+                The total returns for the simulated period are {{ Formatter.percent(portfolio_returns) }}
             </h2>
         </div>
 
-        <!-- Element host for the Google Chart -->
-        <div v-hide="!!error" id="chart-container" class="chart-container"></div>
+        <!-- Summary simulation statistics -->
+        <table :class="{invisible: error_message !== null}" class="centered" style="display: table; font-size: small">
+            <tr>
+                <th>Period</th>
+                <th>Average</th>
+                <th>Max</th>
+                <th>Min</th>
+            </tr>
+            <tr>
+                <td>1 Year</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['1 Year'].min, true) }}</td>
+            </tr>
+            <tr>
+                <td>5 Years</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['5 Year'].min, true) }}</td>
+            </tr>
+            <tr>
+                <td>10 Years</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(portfolio_performance['10 Year'].min, true) }}</td>
+            </tr>
+        </table>
+
+        <!-- Element host for the Google Charts -->
+        <div :class="{invisible: error_message !== null}" id="perf-chart-container" class="chart-container"></div>
+        <div :class="{invisible: error_message !== null}" id="drawdown-chart-container" class="chart-container"></div>
 
         <div class="spacer"></div>
 
@@ -40,12 +67,12 @@
 
                 <div>
                     <label for="start_date">Simulation Start Date</label>
-                    <input type="date" v-model="start_date" min="1975-01-01" />
+                    <input type="date" v-model="start_date" min="1975-01-01" @change="update()" />
                 </div>
 
                 <div>
                     <label for="start_date">Simulation End Date</label>
-                    <input type="date" v-model="end_date" min="1975-01-01" />
+                    <input type="date" v-model="end_date" min="1975-01-01" @change="update()" />
                 </div>
 
                 <div>
@@ -82,7 +109,7 @@
         const app = new Vue({
             el: '#portfolio-calculator-data',
             data: {
-                error: null,
+                error_message: null,
                 target_allocations: {},
                 rebalance_strategy: 'yearly',
                 strategies: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
@@ -90,7 +117,9 @@
                 start_date: '1995-01-01',
                 end_date: new Date().toISOString().slice(0, 10),
                 portfolio_returns: 0,
+                portfolio_performance: { '1 Year': {}, '5 Year': {}, '10 Year': {} },
                 debouncer: null,
+                Formatter: Formatter,
             },
             computed: {
             },
@@ -145,15 +174,13 @@
                     throw new Error(`Unknown rebalancing strategy: ${strat}`);
                 },
                 update: async function () {
-                    const chartElem = rootElement.querySelector('#chart-container');
 
                     const alloc = this.alloc();
                     if (Object.values(alloc).reduce((total, val) => total + val, 0) !== 1) {
-                        this.error = 'Total allocations must be equal to 100%';
-                        chartElem.innerHTML = '';
+                        this.error_message = 'Total allocations must be equal to 100%';
                         return;
                     } else {
-                        this.error = null;
+                        this.error_message = null;
                     }
 
                     // Load Google Charts asynchronously on demand
@@ -169,10 +196,12 @@
 
                     // Use an iterative process to compute estimated returns
                     const returns = [];
-                    const performance = { '1 Year': {}, '5 Year': {}, '10 Year': {}, 'Rebalances': 0 };
-                    const C = JSON.parse(JSON.stringify(alloc));
+                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0 };
+                    const C = Object.assign({ Total: 1, Max: 1 }, alloc);
                     for (const x of history) {
                         C.Total = symbols.reduce((total, symbol) => total + C[symbol], 0);
+                        C.Max = Math.max(C.Max, C.Total);
+                        C.Drawdown = Math.min(0, (C.Total - C.Max) / C.Max);
                         symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
                         returns.push(Object.assign({ Date: new Date(x.Date) }, C));
 
@@ -181,42 +210,69 @@
                             performance.Rebalances++;
                             this.rebalance(C)
                         }
+
+                        // Keep track of rolling performance
+                        [1, 5, 10].forEach(year => {
+                            const key = `${year} Year`;
+                            const days = year * 365;
+                            if (returns.length > days) {
+                                const prev = returns.at(-days);
+                                const diff = C.Total - prev.Total;
+                                const ratio = diff / prev.Total;
+                                performance[key].push(ratio);
+                            }
+                        });
                     }
 
-                    this.portfolio_returns = C.Total - 1;
+                    this.portfolio_returns = Math.round(C.Total - 1 * 100) / 100;
+
+                    [1, 5, 10].forEach(year => {
+                        const key = `${year} Year`;
+                        const sum = performance[key].reduce((total, val) => total + val, 0);
+                        const approx = x => Math.round(x * 1000) / 1000;
+                        this.portfolio_performance[key].avg = approx(sum / performance[key].length);
+                        this.portfolio_performance[key].max = approx(Math.max(...performance[key]));
+                        this.portfolio_performance[key].min = approx(Math.min(...performance[key]));
+                    })
+
                     console.log(returns);
                     console.log(performance);
+                    const portfolioStr = symbols.map(symbol => `${this.target_allocations[symbol]}% ${symbol}`).join(' · ');
 
-                    // // Used as a shorthand to compute the tooltip displayed on hover
-                    // const tooltip = x =>
-                    //     `${ x['date']}\n` +
-                    //     `${ Formatter.price(x['networth']) } Net Worth\n` +
-                    //     `${ Formatter.price(x['investments']) } Investments\n` +
-                    //     `${ Formatter.price(x['debt']) } Debt`;
+                    const perfTable = new google.visualization.DataTable();
+                    perfTable.addColumn({ label: 'Date', type: 'date' });
+                    symbols.forEach(symbol => perfTable.addColumn({ label: symbol, type: 'number' }));
+                    perfTable.addRows(returns.map(row => ['Date'].concat(symbols).map(symbol => row[symbol])));
 
-                    const table = new google.visualization.DataTable();
-                    table.addColumn({ label: 'Date', type: 'date' });
-                    symbols.forEach(symbol => table.addColumn({ label: symbol, type: 'number' }));
-                    // dataTable.addColumn({ type: 'string', role: 'tooltip' });
-                    table.addRows(returns.map(row => ['Date'].concat(symbols).map(symbol => row[symbol])));// Object.values(row)));
+                    const drawdownTable = new google.visualization.DataTable();
+                    drawdownTable.addColumn({ label: 'Date', type: 'date' });
+                    drawdownTable.addColumn({ label: 'Drawdown', type: 'number' });
+                    drawdownTable.addRows(returns.map(row => [row['Date'], row['Drawdown']]));
 
-                    const chartObject = new google.visualization.AreaChart(chartElem);
-                    chartObject.draw(table, Object.assign({}, GOOGLE_CHARTS_CONFIG, {
-                        title: symbols.map(symbol => `${this.target_allocations[symbol]}% ${symbol}`).join(' · '),
+                    const perfElem = rootElement.querySelector('#perf-chart-container');
+                    new google.visualization.AreaChart(perfElem).draw(perfTable, Object.assign({}, GOOGLE_CHARTS_CONFIG, {
+                        title: `${portfolioStr} Performance`,
                         curveType: 'function',
                         isStacked: true,
                         focusTarget: 'category',
                         colors: null,
                         hAxis: { format: 'MM/yyyy', gridlines: { count: 50 }, ...GOOGLE_CHARTS_CONFIG.hAxis },
-                        // intervals: { 'style': 'area' },
                         interpolateNulls: true,
-                        // annotations: {
-                        //     style: 'line'
-                        // },
                     }));
 
-                    // Hide loading spinner
-                    chartElem.style.backgroundImage = 'none';
+                    const drawdownElem = rootElement.querySelector('#drawdown-chart-container');
+                    new google.visualization.AreaChart(drawdownElem).draw(drawdownTable, Object.assign({}, GOOGLE_CHARTS_CONFIG, {
+                        title: `${portfolioStr} Drawdown`,
+                        curveType: 'function',
+                        focusTarget: 'category',
+                        colors: ['red'],
+                        hAxis: { format: 'MM/yyyy', gridlines: { count: 50 }, ...GOOGLE_CHARTS_CONFIG.hAxis },
+                        vAxis: { ...GOOGLE_CHARTS_CONFIG.vAxis, viewWindow: { max: 0, min: -1 } },
+                        interpolateNulls: true,
+                    }));
+
+                    // Hide loading spinners
+                    perfElem.style.backgroundImage = 'none';
                 }
             }
         });
