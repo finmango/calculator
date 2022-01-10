@@ -98,9 +98,29 @@
             </tr>
         </tbody></table>
 
-        <!-- Element host for the Google Charts -->
-        <div :class="{invisible: error_message !== null}" id="perf-chart-container" class="chart-container"></div>
-        <div :class="{invisible: error_message !== null}" id="drawdown-chart-container" class="chart-container"></div>
+        <div class="flex one two-600">
+
+            <div class="fourth" style="padding-top: 24px">
+                <label for="target_allocations">Target Allocations</label>
+                <div id="target_allocations">
+                    <div v-for="(value, symbol) in target_allocations">
+                        <label for="{{ symbol }}">
+                            <small>{{ target_allocations[symbol] }}% {{ symbol }}</small>
+                        </label>
+                        <input @input="temp()" type="range" v-model.number="target_allocations[symbol]" min="0" max="100" step="5" style="margin-top: -10px; padding: 0;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="three-fourth">
+                <!-- Element host for the Google Charts -->
+                <div :class="{invisible: error_message !== null}" id="perf-chart-container" class="chart-container">
+                </div>
+                <div :class="{invisible: error_message !== null}" id="drawdown-chart-container" class="chart-container">
+                </div>
+            </div>
+
+        </div>
 
         <div class="spacer"></div>
 
@@ -157,17 +177,6 @@
                     <input type="date" v-model="end_date" min="1975-01-01" @change="update()">
                 </div>
 
-                <div>
-                    <label for="target_allocations">Target Allocations</label>
-                    <div id="target_allocations">
-                        <div v-for="(value, symbol) in target_allocations">
-                            <label for="{{ symbol }}">
-                                <small>{{ target_allocations[symbol] }}% {{ symbol }}</small>
-                            </label>
-                            <input @input="temp()" type="range" v-model.number="target_allocations[symbol]" min="0" max="100" step="5">
-                        </div>
-                    </div>
-                </div>
 
             </form>
         </details>
@@ -342,8 +351,10 @@
                         isStacked: true,
                         focusTarget: 'category',
                         colors: null,
-                        hAxis: { format: 'MM/yyyy', gridlines: { count: 50 }, ...GOOGLE_CHARTS_CONFIG.hAxis },
+                        hAxis: { ...GOOGLE_CHARTS_CONFIG.hAxis, format: 'MM/yyyy', gridlines: { count: 50 } },
                         interpolateNulls: true,
+                        chartArea: { ...GOOGLE_CHARTS_CONFIG.chartArea, left: 0 },
+
                     }));
 
                     const drawdownElem = rootElement.querySelector('#drawdown-chart-container');
@@ -352,9 +363,10 @@
                         curveType: 'function',
                         focusTarget: 'category',
                         colors: ['red'],
-                        hAxis: { format: 'MM/yyyy', gridlines: { count: 50 }, ...GOOGLE_CHARTS_CONFIG.hAxis },
+                        hAxis: { ...GOOGLE_CHARTS_CONFIG.hAxis, format: 'MM/yyyy', gridlines: { count: 50 } },
                         vAxis: { ...GOOGLE_CHARTS_CONFIG.vAxis, viewWindow: { max: 0, min: -1 } },
                         interpolateNulls: true,
+                        chartArea: { ...GOOGLE_CHARTS_CONFIG.chartArea, left: 0 },
                     }));
 
                     // Hide loading spinners
