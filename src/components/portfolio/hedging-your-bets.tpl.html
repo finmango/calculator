@@ -1,0 +1,36 @@
+<h2 class="survey-header">
+    Hedging Your Bets
+</h2>
+
+<p class="survey-block">
+    Of course, there are sometimes long periods of economic stagnation or even contraction. Instead
+    of trying to <b>time the market</b>, you can add different types of assets to your portfolio
+    that will behave differently during those times. One popular choice for this purpose are
+    <b>bonds</b>.
+</p>
+
+<p class="survey-block">
+    Having a diversity of assets in your portfolio helps minimize <b>drawdowns</b> and often results
+    in higher overall performance compared to holding a single class of assets, especially when
+    a <b>rebalancing strategy</b> is employed.
+</p>
+
+<p class="survey-block">
+    A very common strategy for U.S. investors is the <b>three-fund portfolio</b>. An investor
+    following this strategy simply selects a combination of funds that provide exposure to three
+    main categories: <b>U.S. Bonds</b>, <b>U.S. Stocks</b> and <b>International Stocks</b>.
+</p>
+
+<div class="survey-block centered">
+    <label for="target_allocations">Asset Allocation</label>
+    <select id="target_allocations" v-model="target_allocations">
+        <option value="SPY:100" selected>100% U.S. Equities</option>
+        <option value="VTI:80,BND:20">80% U.S. Equities and 20% U.S. Bonds</option>
+        <option value="VTI:60,VXUS:20,BND:20">60% U.S. Equities, 20% International Equities and 20% U.S. Bonds</option>
+    </select>
+</div>
+<!-- <ul class="survey-block" style="padding-left: 2em; text-align: left;">
+    <li>U.S. Bonds</li>
+    <li>U.S. Stocks</li>
+    <li>International Stocks</li>
+</ul> -->

@@ -223,7 +223,10 @@
 
         // Load data from URL query parameters into the view model
         const data = DataHelper.getQueryData(window.location);
-        data.target_allocations = JSON.parse(data.target_allocations || '{"SPY": 80, "TLT": 20}');
+        data.target_allocations = (data.target_allocations || 'SPY:100').split(',').reduce((agg, keyval) => {
+            const [key, val] = keyval.split(':', 2);
+            return Object.assign(agg, { [key]: parseInt(val) || 0 });
+        }, {});
         Object.assign(app, data);
 
         // Load data from remote JSON file

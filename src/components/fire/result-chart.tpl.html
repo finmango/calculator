@@ -52,7 +52,7 @@
                         </br>
                         <small>Strategy used to repay the debt. "Optimal" assumes constant investment return.</small>
                     </label>
-                    <select v-model="debt_payment_strategy">
+                    <select id="debt_payment_strategy" v-model="debt_payment_strategy">
                         <option value="optimal" selected>Optimal</option>
                         <option value="debt-first">All Debt First</option>
                         <option value="debt-last">Only Minimum Payments</option>

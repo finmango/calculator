@@ -45,9 +45,25 @@ summary {
     display: block;
     margin-left: auto;
     margin-right: auto;
-    text-align: center;
     flex: 1;
 }
+
+.survey-header {
+    text-transform: uppercase;
+    font-size: xx-large;
+    text-align: center;
+    width: auto;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    flex: 1;
+}
+
+.survey-block img {
+    width: 100%;
+    height: auto;
+}
+
 .animated {
     transition: all 500ms ease-in-out;
 }

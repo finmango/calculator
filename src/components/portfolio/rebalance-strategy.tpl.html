@@ -1,0 +1,26 @@
+<h2 class="survey-header">
+    Rebalance Strategy
+</h2>
+
+<p class="survey-block">
+    <b>Rebalancing</b> is an extremely important concept when it comes to building a successful
+    portfolio. As time passes and some of the assets in your portfolio outperform others, your
+    portfolio deviates from its intended <b>asset allocation</b>.
+</p>
+
+<p class="survey-block">
+    To overcome this problem, investors rebalance their portfolio at certain time intervals. More
+    frequent rebalancing does not always yield better results, and unless automated it will also
+    take up a significant amount of effort.
+</p>
+
+<div class="survey-block centered">
+    <label for="rebalance_strategy">Rebalancing Strategy</label>
+    <select id="rebalance_strategy" v-model="rebalance_strategy">
+        <option value="never" selected>Never</option>
+        <option value="yearly">Yearly</option>
+        <option value="quarterly">Quarterly</option>
+        <option value="monthly">Monthly</option>
+        <option value="daily">Daily</option>
+    </select>
+</div>
