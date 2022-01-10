@@ -1,0 +1,131 @@
+<!DOCTYPE html><html><!-- HTML head --><head>
+    <!-- HTML metadata -->
+    <meta charset="UTF-8">
+    <title>FinMango FIRE</title>
+    <meta name="description" content="FIRE calculator, made by FinMango">
+    <link rel="icon" type="image/ico" href="../../../static/favicon.ico">
+
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FinMango FIRE">
+
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="../../../static/favicon.ico">
+
+    <!-- Capabilities-related metadata -->
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+
+    <!-- VueJS -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+    <!-- Comment the previous line and uncomment this one to enable debug more for VueJS -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script> -->
+
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <!-- MomentJS -->
+    <script type="text/javascript" src="../../../third_party/moment/min/moment.min.js"></script>
+
+    <!-- Custom styles and fonts -->
+    <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/goldman-sans">
+    <link rel="stylesheet" href="../../../third_party/picnic/picnic.min.css">
+    <link rel="stylesheet" href="../../../static/styles.min.css">
+
+    <!-- Polyfills, custom functions and constants -->
+    <script type="text/javascript" src="../../../static/formatter.min.js"></script>
+    <script type="text/javascript" src="../../../static/data-helper.min.js"></script>
+    <script type="text/javascript" src="../../../static/polyfills.min.js"></script>
+    <script type="text/javascript">const DEFAULT_OPTIONS={font:"Goldman Sans",chart_legend_position:"none",chart_padding_top:24,chart_padding_left:64,chart_padding_bottom:48};CURRENT_OPTIONS=Object.keys(DEFAULT_OPTIONS).reduce((t,e)=>Object.assign(t,{[e]:sessionStorage.getItem(e)||DEFAULT_OPTIONS[e]}),{}),GOOGLE_CHARTS_CONFIG=window.GOOGLE_CHARTS_CONFIG||{theme:"material",fontName:CURRENT_OPTIONS.font,colors:["{{theme-primary}}"],legend:{position:CURRENT_OPTIONS.chart_legend_position},chartArea:{width:"100%",height:"100%",top:parseInt(CURRENT_OPTIONS.chart_padding_top||24),left:parseInt(CURRENT_OPTIONS.chart_padding_left||64),bottom:parseInt(CURRENT_OPTIONS.chart_padding_bottom||48)},titlePosition:"in",axisTitlesPosition:"in",hAxis:{textPosition:"bottom",textStyle:{fontName:CURRENT_OPTIONS.font}},vAxis:{textPosition:"out",viewWindow:{min:0},textStyle:{fontName:CURRENT_OPTIONS.font}},height:parseInt(CURRENT_OPTIONS.chart_height||300)};</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-xxxx-4"></script>
+<script async>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","UA-xxxx-4");</script>
+
+
+<!-- Load analytics at the end of the head element before the body -->
+
+
+</head><body>
+    <!-- Page header-->
+    <header class="flex center one">
+    <div>
+        <a class="centered uppercase" target="_blank" href="https://finmango.org" style="display: block; padding: 0;">
+            <img class="centered" src="../../../static/logo.png" height="128" width="auto">
+        </a>
+    </div>
+</header>
+
+    <!-- Main element -->
+    <main class="single-column-wide" style="margin-top: auto; margin-bottom: auto;">
+        <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <div id="portfolio-calculator-data">
+
+        <div>
+            <h2 v-if="error" class="centered" style="text-transform: uppercase;">{{error}}</h2>
+            <h2 v-else class="centered" style="text-transform: uppercase;">
+                The total returns for the simulated period are
+                <br>
+                <span style="font-size: xx-large;">{{ Math.round(Number(portfolio_returns) * 100) }}%</span>
+            </h2>
+        </div>
+
+        <!-- Element host for the Google Chart -->
+        <div v-hide="!!error" id="chart-container" class="chart-container"></div>
+
+        <div class="spacer"></div>
+
+        <details>
+            <summary>Calculator Options</summary>
+
+            <form class="flex one two-600">
+
+                <div>
+                    <label for="rebalance_strategy">Rebalancing Strategy</label>
+                    <select v-model="rebalance_strategy">
+                        <option v-bind:value="strat.toLowerCase()" v-for="strat in strategies">{{ strat }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="dividend_reinvestment">Dividend Reinvestment</label>
+                    <select v-model="dividend_reinvestment">
+                        <option v-bind:value="opt" v-for="opt in ['yes', 'no']">
+                            {{ (opt.charAt(0).toUpperCase() + opt.slice(1)) }}</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="start_date">Simulation Start Date</label>
+                    <input type="date" v-model="start_date" min="1975-01-01">
+                </div>
+
+                <div>
+                    <label for="start_date">Simulation End Date</label>
+                    <input type="date" v-model="end_date" min="1975-01-01">
+                </div>
+
+                <div>
+                    <label for="target_allocations">Target Allocations</label>
+                    <div id="target_allocations">
+                        <div v-for="(value, symbol) in target_allocations">
+                            <label for="{{ symbol }}">
+                                <small>{{ target_allocations[symbol] }}% {{ symbol }}</small>
+                            </label>
+                            <input @input="temp()" type="range" v-model.number="target_allocations[symbol]" min="0" max="100" step="5">
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </details>
+    </div>
+
+    <script async>function csv2json(t){return new Promise(e=>Papa.parse(t,{download:!0,complete:e})).then(t=>t.data).then(t=>t.slice(1).map(e=>t[0].reduce((t,a,r)=>Object.assign(t,{[a]:"Date"===a?e[r]:parseFloat(e[r])}),{})))}const rootElement=document.currentScript.parentElement,app=new Vue({el:"#portfolio-calculator-data",data:{error:null,target_allocations:{},rebalance_strategy:"yearly",strategies:["Never","Yearly","Quarterly","Monthly","Daily"],dividend_reinvestment:"yes",start_date:"1995-01-01",end_date:(new Date).toISOString().slice(0,10),portfolio_returns:0,debouncer:null},computed:{},watch:{},methods:{alloc:function(){const t={};for(const[e,a]of Object.entries(data.target_allocations))a>0&&(t[e]=a/100);return t},temp:function(){this.debouncer&&clearTimeout(this.debouncer),this.debouncer=setTimeout(()=>{const t=this.target_allocations;this.target_allocations=null,this.target_allocations=t},10)},rebalance:function(t){const e=this.alloc(),a=Object.keys(e).reduce((e,a)=>e+t[a],0);Object.entries(e).forEach(([e,r])=>t[e]=a*r)},needsRebalancing:function(t){const e=String(this.rebalance_strategy).toLocaleLowerCase(),a=t=>t.toISOString().slice(0,10).split("-");if("never"===e||t.length<2)return!1;if("yearly"===e)return a(t.at(-1).Date)[0]!==a(t.at(-2).Date)[0];if("quarterly"===e)return!1;if("monthly"===e)return a(t.at(-1).Date)[1]!==a(t.at(-2).Date)[1];if("daily"===e)return!0;if(e.endsWith("% threshold")){const a=parseInt(e.split("%")[0])/100,r=this.alloc.map(e=>[e,t.at(-1)[e]]),n=r.reduce((t,[e,a])=>t+a,0);for(const[t,e]of r){const r=e/n,o=this.alloc[t];Math.abs(r-o);if(Math.abs(r-o)/o>a)return!0}return!1}throw new Error(`Unknown rebalancing strategy: ${e}`)},update:async function(){const t=rootElement.querySelector("#chart-container"),e=this.alloc();if(1!==Object.values(e).reduce((t,e)=>t+e,0))return this.error="Total allocations must be equal to 100%",void(t.innerHTML="");this.error=null,await google.charts.load("current",{packages:["corechart"]});const a=Object.keys(e).sort((t,a)=>e[t]-e[a]),r="yes"===this.dividend_reinvestment,n=(await(r?this.daily_returns_reinvested:this.daily_returns)).filter(t=>t.Date.localeCompare(this.start_date)>=0).filter(t=>t.Date.localeCompare(this.end_date)<=0).filter(t=>a.every(e=>!isNaN(t[e]))),o=[],s={"1 Year":{},"5 Year":{},"10 Year":{},Rebalances:0},l=JSON.parse(JSON.stringify(e));for(const t of n)l.Total=a.reduce((t,e)=>t+l[e],0),a.forEach(e=>l[e]*=1+t[e]),o.push(Object.assign({Date:new Date(t.Date)},l)),this.needsRebalancing(o)&&(s.Rebalances++,this.rebalance(l));this.portfolio_returns=l.Total,console.log(o),console.log(s);const i=new google.visualization.DataTable;i.addColumn({label:"Date",type:"date"}),a.forEach(t=>i.addColumn({label:t,type:"number"})),i.addRows(o.map(t=>["Date"].concat(a).map(e=>t[e]))),new google.visualization.AreaChart(t).draw(i,Object.assign({},GOOGLE_CHARTS_CONFIG,{title:a.map(t=>`${this.target_allocations[t]}% ${t}`).join(" · "),curveType:"function",isStacked:!0,focusTarget:"category",colors:null,hAxis:{format:"MM/yyyy",gridlines:{count:50},...GOOGLE_CHARTS_CONFIG.hAxis},interpolateNulls:!0})),t.style.backgroundImage="none"}}}),data=DataHelper.getQueryData(window.location);data.target_allocations=JSON.parse(data.target_allocations||'{"SPY": 80, "TLT": 20}'),Object.assign(app,data);const urlBase="https://finmango.github.io/portfolio-simulator";app.daily_returns=csv2json(`${urlBase}/daily-returns.csv`),app.daily_returns_reinvested=csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`),app.daily_returns.then(t=>Object.keys(t[0]).filter(t=>"Date"!==t).forEach(t=>data.target_allocations[t]=data.target_allocations[t]||0)),Object.keys(data).forEach(t=>app.$watch(t,function(){this.update()},{deep:!0})),app.update();</script>
+</div>
+    </main>
+
+
+</body></html>
