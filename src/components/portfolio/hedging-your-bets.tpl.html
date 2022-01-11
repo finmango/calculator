@@ -36,10 +36,13 @@
 </p>
 
 <div class="survey-block centered">
-    <label for="target_allocations">Asset Allocation</label>
-    <span class="centered" style="font-size: small;">
-        Proportion of your portfolio allocated to each asset class from the three-fund portfolio.
-    </span>
+    <label for="target_allocations">
+        Asset Allocation
+        <br />
+        <small>
+            Proportion of your portfolio allocated to each asset class from the three-fund portfolio.
+        </small>
+    </label>
     <select id="target_allocations" v-model="target_allocations">
         <option value="SPY:100" selected>100% U.S. Equities</option>
         <option value="VTI:80,BND:20">80% U.S. Equities and 20% U.S. Bonds</option>

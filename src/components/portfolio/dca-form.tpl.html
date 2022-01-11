@@ -1,5 +1,11 @@
 <div>
-    <label for="dca_schedule">Dollar-Cost Averaging Schedule</label>
+    <label for="dca_schedule">
+        Dollar-Cost Averaging Schedule
+        <br />
+        <small>
+            How often to simulate cash contributions to your portfolio.
+        </small>
+    </label>
     <select id="dca_schedule" v-model="dca_schedule">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>
@@ -9,8 +15,9 @@
 </div>
 <div v-show="dca_schedule !== 'never'">
     <label for="dca_percent">Percentage of Initial Investment</label>
-    <span class="centered" style="font-size: small;">
+    <br />
+    <small>
         Percentage of the initial investment being added to your portfolio at regular intervals.
-    </span>
+    </small>
     <input id="dca_percent" v-model="dca_percent" type="number" pattern="/d*" min="0" max="100" value="0" />
 </div>

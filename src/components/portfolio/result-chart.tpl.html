@@ -12,17 +12,18 @@
                     {{ Formatter.percent(performance.returns, true) }}
                 </h2>
                 <p style="text-align: justify;">
-                    For every dollar invested between
-                    <b>{{ performance.start_date?.toLocaleDateString() }}</b> and
-                    <b>{{ performance.end_date?.toLocaleDateString() }}</b> you would have made
+                    With your investment of <b class="green">{{ Formatter.price(initial_investment) }}</b> from
+                    <b>{{ performance.start_date?.toLocaleDateString() }}</b> until
+                    <b>{{ performance.end_date?.toLocaleDateString() }}</b> you would have made an additional
                     <b :class="[performance.returns > 0 ? 'green' : 'red']">
-                        {{ Formatter.price(performance.returns - performance.dca_total) }}</b>,
-                    excluding additional contributions via dollar-cost averaging. The maximum
+                        {{ Formatter.price(initial_investment * (performance.returns - performance.dca_total)) }}</b>,
+                    after excluding contributions via dollar-cost averaging. The maximum
                     drawdown in the simulated strategy was
                     <b class="red">{{ Formatter.percent(performance.max_drawdown, true) }}</b>. The
                     portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s) and
-                    <b>{{ performance.dca_count }}</b> additional contribution(s) were made as part
-                    of the selected dollar-cost averaging strategy.
+                    <b>{{ performance.dca_count }}</b> additional contribution(s) totaling
+                    <b class="green">{{ Formatter.price(dca_percent / 100 * initial_investment * performance.dca_count) }}</b>
+                    were made as part of the selected dollar-cost averaging strategy.
                 </p>
             </div>
         </div>
@@ -83,7 +84,7 @@
         <div class="spacer"></div>
 
         <details>
-            <summary style="display: list-item;">Adjust Calculator Options</summary>
+            <summary style="display: list-item; font-size: large;">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
 
@@ -92,6 +93,8 @@
                 <script data-include src="dca-form.tpl.html"></script>
 
                 <script data-include src="div-form.tpl.html"></script>
+
+                <script data-include src="init-form.tpl.html"></script>
 
                 <div>
                     <label for="start_date">Simulation Start Date</label>
@@ -106,6 +109,8 @@
 
             </form>
         </details>
+
+        <div class="spacer"></div>
     </div>
 
     <script async>
@@ -127,6 +132,7 @@
             data: {
                 error_message: null,
                 target_allocations: {},
+                initial_investment: 1,
                 rebalance_schedule: 'yearly',
                 schedules: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
                 dividend_reinvestment: 'yes',
