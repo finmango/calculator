@@ -61,23 +61,23 @@
         <!-- Survey elements in the order they will be displayed -->
         <div id="survey-root">
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     Rule of 72
 </h2>
 
 <p class="survey-block">
     The <b>rule of 72</b> is a popular formula used to roughly estimate how long it will
-    take for your investments to double in time assuming a constant rate of return.
+    take for your investments to <b>double</b> in time assuming a constant <b>rate of return</b>.
 </p>
 
 <p class="survey-block">
-    The formula is extremely simple! Just take the number 72 and divide it by the interest
-    rate that you hope to earn from your investments.
+    The formula is extremely simple! Just take the number <b>72</b> and divide it by the
+    <b>interest rate</b> that you hope to earn from your <b>investments</b>.
 </p>
 
 <p class="survey-block">
     We'll now ask you a few questions about your personal finances to show you that, even
-    with modest initial savings, you can accumulate a significant amount of wealth.
+    with modest initial savings, you can build a significant amount of wealth.
 </p>
             </div>
 
@@ -106,13 +106,14 @@
             </div>
 
             <div class="survey-screen animated">
-                <h2 class="survey-block">
+                <h2 class="survey-header">
     Doubling Time
 </h2>
 
 <p class="survey-block">
     With the expected annual return rate, the <b>rule of 72</b> lets you estimate that your
-    investments will double every <b><span>{{ Formatter.years(72 / Number(this.investments_rate)) }}</span> years</b>.
+    investments will double every <b>72 ÷ {{ Number(this.investments_rate).toFixed(2) }} = </b>
+    <b>{{ Formatter.years(72 / Number(this.investments_rate)) }} years</b>.
 </p>
 
 <p class="survey-block">
