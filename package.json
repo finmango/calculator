@@ -2,7 +2,7 @@
   "displayName": "FinMango Calculator",
   "description": "Financial calculator, made by FinMango",
   "vars": {
-    "analytics": "UA-xxxx-4",
+    "analytics": "G-B3RYND2Z48",
     "email": "oscar@finmango.org",
     "theme": {
       "primary": "#FB780F",
