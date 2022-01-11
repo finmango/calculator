@@ -15,14 +15,13 @@
         <div class="spacer"></div>
 
         <details>
-            <summary>Calculator Options</summary>
+            <summary style="display: list-item; font-size: large;">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
 
                 <div>
                     <label for="debt_net" style="margin-bottom: auto;">
                         Loans and Liabilities
-                        </br>
                         <small>Total amount of money owed.</small>
                     </label>
                     <input v-model="debt_net" type="number" pattern="/d*" min="1" style="margin-top: auto;" />
@@ -31,7 +30,6 @@
                 <div>
                     <label for="debt_interest_rate">
                         Debt Interest Rate
-                        </br>
                         <small>Annualized percentage charged by the loan provider, accruing daily.</small>
                     </label>
                     <input v-model="debt_interest_rate" type="number" pattern="/d*" min="0" max="100" />
@@ -40,7 +38,6 @@
                 <div>
                     <label for="debt_payment_minimum">
                         Minimum Monthly Loan Payment
-                        </br>
                         <small>Minium monthly payment required by the loan provider.</small>
                     </label>
                     <input v-model="debt_payment_minimum" type="number" pattern="/d*" min="1" />
@@ -49,7 +46,6 @@
                 <div>
                     <label for="debt_payment_strategy">
                         Loan Payment Strategy
-                        </br>
                         <small>Strategy used to repay the debt. "Optimal" assumes constant investment return.</small>
                     </label>
                     <select id="debt_payment_strategy" v-model="debt_payment_strategy">
@@ -62,7 +58,6 @@
                 <div>
                     <label for="investments_net">
                         Current Investments
-                        </br>
                         <small>Total money invested in stock market, 401K, etc.</small>
                     </label>
                     <input v-model="investments_net" type="number" pattern="/d*" min="1" value="5000" />
@@ -71,7 +66,6 @@
                 <div>
                     <label for="investments_rate">
                         Expected Rate of Return
-                        </br>
                         <small>Yearly growth percentage for your investments.</small>
                     </label>
                     <input v-model="investments_rate" type="number" pattern="/d*" min="0" max="20" value="8" />
@@ -80,7 +74,6 @@
                 <div>
                     <label for="income_net">
                         Annual Post-Tax Income
-                        </br>
                         <small>Total household income <span style="text-decoration: underline;">after</span>
                             taxes.</small>
                     </label>
@@ -90,7 +83,6 @@
                 <div>
                     <label for="savings_rate">
                         Savings Rate
-                        </br>
                         <small>Percentage of your income going into investments and to pay off debt.</small>
                     </label>
                     <input v-model="savings_rate" type="number" pattern="/d*" min="0" max="100" value="25" />
@@ -99,7 +91,6 @@
                 <div>
                     <label for="income_target">
                         Target Retirement Income
-                        </br>
                         <small>Annual after-tax target income after retirement.</small>
                     </label>
                     <input v-model="income_target" type="number" pattern="/d*" min="1" value="50000" />
@@ -108,7 +99,6 @@
                 <div>
                     <label for="safe_withdrawal_rate">
                         Safe Withdrawal Rate
-                        </br>
                         <small>Percentage of investments that can be withdrawn without a net negative effect.</small>
                     </label>
                     <input v-model="safe_withdrawal_rate" type="number" pattern="/d*" min="0" max="100" value="4" />
