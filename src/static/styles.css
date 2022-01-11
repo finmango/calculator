@@ -218,3 +218,11 @@ button.centered {
 .invisible {
     visibility: hidden;
 }
+
+.green {
+    color: green;
+}
+
+.red {
+    color: red;
+}

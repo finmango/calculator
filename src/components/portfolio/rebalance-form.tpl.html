@@ -1,5 +1,8 @@
 <div>
     <label for="rebalance_schedule">Rebalancing Schedule</label>
+    <span class="centered" style="font-size: small;">
+        How often to simulate portfolio rebalancing toward the original asset allocation.
+    </span>
     <select id="rebalance_schedule" v-model="rebalance_schedule">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>

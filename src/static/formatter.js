@@ -1,11 +1,9 @@
-window._CACHE_JS = window._CACHE_JS || {};
-
 class Formatter {
 
-    static price(value) {
+    static price(value, signed = false) {
         value = Number(value);
         const str = value.toLocaleString(undefined, { maximumFractionDigits: 2 }).replace('-', '');
-        const prefix = (value < 0 ? '-' : '') + '$';
+        const prefix = (value < 0 ? '-' : (signed ? '+' : '')) + '$';
         return prefix + str;
     }
 

@@ -6,9 +6,25 @@
 
         <div>
             <h2 v-if="error_message" class="centered" style="text-transform: uppercase;">{{error_message}}</h2>
-            <h2 v-else class="centered" style="text-transform: uppercase;">
-                The total returns for the simulated period are {{ Formatter.percent(portfolio_returns) }}
-            </h2>
+            <div v-else>
+                <h2 class="centered" style="text-transform: uppercase;">
+                    The total returns for the simulated period are
+                    {{ Formatter.percent(performance.returns, true) }}
+                </h2>
+                <p style="text-align: justify;">
+                    For every dollar invested between
+                    <b>{{ performance.start_date?.toLocaleDateString() }}</b> and
+                    <b>{{ performance.end_date?.toLocaleDateString() }}</b> you would have made
+                    <b :class="[performance.returns > 0 ? 'green' : 'red']">
+                        {{ Formatter.price(performance.returns - performance.dca_total) }}</b>,
+                    excluding additional contributions via dollar-cost averaging. The maximum
+                    drawdown in the simulated strategy was
+                    <b class="red">{{ Formatter.percent(performance.max_drawdown, true) }}</b>. The
+                    portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s) and
+                    <b>{{ performance.dca_count }}</b> additional contribution(s) were made as part
+                    of the selected dollar-cost averaging strategy.
+                </p>
+            </div>
         </div>
 
         <!-- Summary simulation statistics -->
@@ -19,23 +35,23 @@
                 <th>Max</th>
                 <th>Min</th>
             </tr>
-            <tr v-show="portfolio_performance['1 Year'].avg">
+            <tr v-show="performance['1 Year'].avg">
                 <td>1 Year</td>
-                <td>{{ Formatter.percent(portfolio_performance['1 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['1 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['1 Year'].min, true) }}</td>
+                <td>{{ Formatter.percent(performance['1 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(performance['1 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(performance['1 Year'].min, true) }}</td>
             </tr>
-            <tr v-show="portfolio_performance['5 Year'].avg">
+            <tr v-show="performance['5 Year'].avg">
                 <td>5 Years</td>
-                <td>{{ Formatter.percent(portfolio_performance['5 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['5 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['5 Year'].min, true) }}</td>
+                <td>{{ Formatter.percent(performance['5 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(performance['5 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(performance['5 Year'].min, true) }}</td>
             </tr>
-            <tr v-show="portfolio_performance['10 Year'].avg">
+            <tr v-show="performance['10 Year'].avg">
                 <td>10 Years</td>
-                <td>{{ Formatter.percent(portfolio_performance['10 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['10 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(portfolio_performance['10 Year'].min, true) }}</td>
+                <td>{{ Formatter.percent(performance['10 Year'].avg, true) }}</td>
+                <td>{{ Formatter.percent(performance['10 Year'].max, true) }}</td>
+                <td>{{ Formatter.percent(performance['10 Year'].min, true) }}</td>
             </tr>
         </table>
 
@@ -119,7 +135,7 @@
                 start_date: '1995-01-01',
                 end_date: new Date().toISOString().slice(0, 10),
                 portfolio_returns: 0,
-                portfolio_performance: { '1 Year': {}, '5 Year': {}, '10 Year': {} },
+                performance: { '1 Year': {}, '5 Year': {}, '10 Year': {} },
                 debouncer1: null,
                 debouncer2: null,
                 Formatter: Formatter,
@@ -198,7 +214,7 @@
                         .filter(row => symbols.every(symbol => !isNaN(row[symbol])));
 
                     const returns = [];
-                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0 };
+                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0, 'DCA': 0 };
                     const C = Object.assign({ Total: 1, Max: 1 }, alloc);
                     for (const x of history) {
                         C.Total = symbols.reduce((total, symbol) => total + C[symbol], 0);
@@ -209,6 +225,7 @@
 
                         // DCA if schedule requests it
                         if (this.meetsSchedule(returns, this.dca_schedule.toLowerCase())) {
+                            performance.DCA++;
                             Object.entries(alloc).forEach(([symbol, weight]) =>
                                 C[symbol] += this.dca_percent / 100 / symbols.length);
                         }
@@ -234,15 +251,24 @@
                     }
 
                     this.portfolio_returns = Math.round((C.Total - 1) * 100) / 100;
+                    this.performance['returns'] = Math.round((C.Total - 1) * 100) / 100;
+                    this.performance['dca_count'] = performance['DCA'];
+                    this.performance['rebalance_count'] = performance['Rebalances'];
+                    this.performance['dca_total'] = performance['DCA'] * this.dca_percent / 100;
+                    this.performance['start_date'] = returns[0]['Date'];
+                    this.performance['end_date'] = returns.at(-1)['Date'];
+                    this.performance['max_drawdown'] = Math.min(...returns.map(row => row['Drawdown']));
 
                     [1, 5, 10].forEach(year => {
                         const key = `${year} Year`;
                         const sum = performance[key].reduce((total, val) => total + val, 0);
                         const approx = x => Math.round(x * 1000) / 1000;
-                        this.portfolio_performance[key].avg = approx(sum / performance[key].length);
-                        this.portfolio_performance[key].max = approx(Math.max(...performance[key]));
-                        this.portfolio_performance[key].min = approx(Math.min(...performance[key]));
-                    })
+                        this.performance[key].avg = approx(sum / performance[key].length);
+                        this.performance[key].max = approx(Math.max(...performance[key]));
+                        this.performance[key].min = approx(Math.min(...performance[key]));
+                    });
+
+                    this.performance = { ...this.performance };
 
                     console.log(returns);
                     console.log(performance);
