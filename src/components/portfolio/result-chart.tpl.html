@@ -83,7 +83,7 @@
         <div class="spacer"></div>
 
         <details>
-            <summary>Calculator Options</summary>
+            <summary style="display: list-item;">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
 
@@ -214,6 +214,7 @@
                         .filter(row => symbols.every(symbol => !isNaN(row[symbol])));
 
                     const returns = [];
+                    const rolling = [1, 5, 10].reduce((agg, n) => ({ [n]: { returns: [], drawdowns: [] }, ...agg }), {});
                     const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0, 'DCA': 0 };
                     const C = Object.assign({ Total: 1, Max: 1 }, alloc);
                     for (const x of history) {
@@ -238,14 +239,14 @@
                         }
 
                         // Keep track of rolling performance
-                        [1, 5, 10].forEach(year => {
-                            const key = `${year} Year`;
+                        Object.keys(rolling).forEach(year => {
                             const days = year * 365;
                             if (returns.length > days) {
                                 const prev = returns.at(-days);
                                 const diff = C.Total - prev.Total;
                                 const ratio = diff / prev.Total;
-                                performance[key].push(ratio);
+                                rolling[year].returns.push(ratio);
+                                // rolling[year].drawdowns.push(Math.min(...returns.slice(-days).map(row => row.Drawdown)));
                             }
                         });
                     }
@@ -259,19 +260,21 @@
                     this.performance['end_date'] = returns.at(-1)['Date'];
                     this.performance['max_drawdown'] = Math.min(...returns.map(row => row['Drawdown']));
 
-                    [1, 5, 10].forEach(year => {
-                        const key = `${year} Year`;
-                        const sum = performance[key].reduce((total, val) => total + val, 0);
+                    Object.keys(rolling).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
-                        this.performance[key].avg = approx(sum / performance[key].length);
-                        this.performance[key].max = approx(Math.max(...performance[key]));
-                        this.performance[key].min = approx(Math.min(...performance[key]));
+                        const sum = rolling[year].returns.reduce((total, val) => total + val, 0);
+
+                        const key = `${year} Year`;
+                        this.performance[key] = {};
+                        this.performance[key].avg = approx(sum / rolling[year].returns.length);
+                        this.performance[key].max = approx(Math.max(...rolling[year].returns));
+                        this.performance[key].min = approx(Math.min(...rolling[year].returns));
                     });
 
                     this.performance = { ...this.performance };
+                    console.log(JSON.stringify(this.performance));
 
                     console.log(returns);
-                    console.log(performance);
                     const portfolioStr = symbols.map(symbol => `${this.target_allocations[symbol]}% ${symbol}`).join(' · ');
 
                     const perfTable = new google.visualization.DataTable();
