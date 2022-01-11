@@ -134,10 +134,7 @@
     <div>
     <label for="initial_investment">
         Initial Investment
-        <br>
-        <small>
-            Amount of cash used for the initial allocation of the portfolio.
-        </small>
+        <small>Amount of cash used for the initial allocation of the portfolio.</small>
     </label>
     <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
 </div>
@@ -233,10 +230,7 @@
     <div>
     <label for="dividend_reinvestment">
         Reinvest Dividends
-        <br>
-        <small>
-            Whether dividends should be automatically reinvested into your portfolio allocations.
-        </small>
+        <small>Whether dividends should be automatically reinvested into your portfolio allocations.</small>
     </label>
     <select id="dividend_reinvestment" v-model="dividend_reinvestment">
         <option value="yes" selected>Yes</option>
@@ -317,10 +311,7 @@
     <div>
     <label for="dca_schedule">
         Dollar-Cost Averaging Schedule
-        <br>
-        <small>
-            How often to simulate cash contributions to your portfolio.
-        </small>
+        <small>How often to simulate cash contributions to your portfolio.</small>
     </label>
     <select id="dca_schedule" v-model="dca_schedule">
         <option value="never" selected>Never</option>

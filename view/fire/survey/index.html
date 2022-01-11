@@ -61,7 +61,7 @@
         <!-- Survey elements in the order they will be displayed -->
         <div id="survey-root">
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     What is FIRE?
 </h2>
 
@@ -94,7 +94,7 @@
             </div>
 
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     Modern Personal Finance
 </h2>
 
@@ -117,110 +117,94 @@
     Do you have any debts?
 </h2>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="debt_net">
         Total Amount Owed
+        <small>The average student or car loan debt is around $30,000.</small>
     </label>
     <input id="debt_net" v-model="debt_net" type="number" pattern="/d*" min="0" value="0">
-    <span class="centered" style="font-size: small;">
-        The average student or car loan debt is around $30,000.
-    </span>
 </div>
 
 <div class="spacer"></div>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="debt_interest_rate">
         Interest Rate
+        <small>The average student and car loan interest rate is 5-6%, mortgage is approximately 4%.</small>
     </label>
     <input id="debt_interest_rate" v-model="debt_interest_rate" type="number" pattern="/d*" min="0" max="100" value="5">
-    <span class="centered" style="font-size: small;">
-        The average student and car loan interest rate is 5-6%, mortgage is around 4%.
-    </span>
 </div>
             </div>
 
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     Do you have any investments?
 </h2>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="investments_net">
         Total Invested Amount
+        <small>Total money invested in stock market, 401K, etc.</small>
     </label>
     <input id="investments_net" v-model="investments_net" type="number" pattern="/d*" min="5000" value="5000">
-    <span class="centered" style="font-size: small;">
-        Total money invested in stock market, 401K, etc.
-    </span>
 </div>
 
 <div class="spacer"></div>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="investments_rate">
         Expected Investment Annual Return Rate
+        <small>The average stock market return for a 10-year period is 9.2% per year.</small>
     </label>
     <input id="investments_rate" v-model="investments_rate" type="number" pattern="/d*" min="0" max="100" value="9.2">
-    <span class="centered" style="font-size: small;">
-        The average stock market return for a 10-year period is 9.2% per year.
-    </span>
 </div>
             </div>
 
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     What is your income?
 </h2>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="income_net">
         Annual Post-Tax Income
+        <small>Total household income <span style="text-decoration: underline;">after</span> taxes.</small>
     </label>
-    <span class="centered" style="font-size: small;">
-        Total household income <span style="text-decoration: underline;">after</span> taxes.
-    </span>
     <input id="income_net" v-model="income_net" type="number" pattern="/d*" min="1" value="60000">
 </div>
 
 <div class="spacer"></div>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="savings_rate">
         Savings Rate
+        <small>Percentage of your income going into investments and to pay off debt.</small>
     </label>
-    <span class="centered" style="font-size: small;">
-        Percentage of your income going into investments and to pay off debt.
-    </span>
     <input id="savings_rate" v-model="savings_rate" type="number" pattern="/d*" min="0" max="100" value="25">
 </div>
             </div>
 
             <div class="survey-screen animated">
-                <h2 class="survey-block" style="text-transform: uppercase; font-size: xx-large;">
+                <h2 class="survey-header">
     What are your retirement goals?
 </h2>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="income_target">
         Annual Target Retirement Income
+        <small>Annual after-tax target income after retirement.</small>
     </label>
-    <span class="centered" style="font-size: small;">
-        Annual after-tax target income after retirement.
-    </span>
-    <input id="income_target" v-model="income_target" type="number" pattern="/d*" min="1" value="60000">
+    <input id="income_target" v-model="income_target" type="number" pattern="/d+" min="1" value="60000">
 </div>
 
 <div class="spacer"></div>
 
-<div class="survey-block">
+<div class="survey-block centered">
     <label for="safe_withdrawal_rate">
         Safe Withdrawal Rate
+        <small>Percentage of investments that can be withdrawn without a net negative effect. Typically 4%.</small>
     </label>
-    <span class="centered" style="font-size: small;">
-        Percentage of investments that can be withdrawn without a net negative effect. Typically 4%.
-    </span>
-    <input id="safe_withdrawal_rate" v-model="safe_withdrawal_rate" type="number" pattern="/d*" min="0" max="100" value="4">
+    <input id="safe_withdrawal_rate" v-model="safe_withdrawal_rate" type="number" pattern="/d+" min="0" max="100" value="4">
 </div>
             </div>
         </div>
