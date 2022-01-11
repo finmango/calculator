@@ -22,7 +22,7 @@
                     <b class="red">{{ Formatter.percent(performance.max_drawdown, true) }}</b>. The
                     portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s) and
                     <b>{{ performance.dca_count }}</b> additional contribution(s) totaling
-                    <b class="green">{{ Formatter.price(dca_percent / 100 * initial_investment * performance.dca_count) }}</b>
+                    <b class="green">{{ Formatter.price(dca_amount * performance.dca_count) }}</b>
                     were made as part of the selected dollar-cost averaging strategy.
                 </p>
             </div>
@@ -137,7 +137,7 @@
                 schedules: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
                 dividend_reinvestment: 'yes',
                 dca_schedule: 'never',
-                dca_percent: 0,
+                dca_amount: 0,
                 start_date: '1995-01-01',
                 end_date: new Date().toISOString().slice(0, 10),
                 portfolio_returns: 0,
@@ -147,6 +147,7 @@
                 Formatter: Formatter,
             },
             computed: {
+                dca_ratio: function () { return this.dca_amount / this.initial_investment }
             },
             watch: {
             },
@@ -234,7 +235,7 @@
                         if (this.meetsSchedule(returns, this.dca_schedule.toLowerCase())) {
                             performance.DCA++;
                             Object.entries(alloc).forEach(([symbol, weight]) =>
-                                C[symbol] += this.dca_percent / 100 / symbols.length);
+                                C[symbol] += this.dca_ratio / symbols.length);
                         }
 
                         // Rebalance the portfolio if needed
@@ -261,7 +262,7 @@
                     this.performance['returns'] = Math.round((C.Total - 1) * 100) / 100;
                     this.performance['dca_count'] = performance['DCA'];
                     this.performance['rebalance_count'] = performance['Rebalances'];
-                    this.performance['dca_total'] = performance['DCA'] * this.dca_percent / 100;
+                    this.performance['dca_total'] = performance['DCA'] * this.dca_ratio;
                     this.performance['start_date'] = returns[0]['Date'];
                     this.performance['end_date'] = returns.at(-1)['Date'];
                     this.performance['max_drawdown'] = Math.min(...returns.map(row => row['Drawdown']));
