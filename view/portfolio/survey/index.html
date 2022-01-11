@@ -85,6 +85,13 @@
     period of time (at least 10 years), both the global and the U.S. economy have consistently
     experienced periods of significant growth.
 </p>
+
+<p class="survey-block">
+    We have collected financial data dating back to 1973 and built this portfolio simulator, so you
+    can see how different portfolios and strategies would have performed in a variety of economic
+    conditions. Your answers to the following questions will be used to initialize the simulator
+    parameters.
+</p>
             </div>
 
             <div class="survey-screen animated">
@@ -108,18 +115,35 @@
 <p class="survey-block">
     A very common strategy for U.S. investors is the <b>three-fund portfolio</b>. An investor
     following this strategy simply selects a combination of funds that provide exposure to three
-    main categories: <b>U.S. Bonds</b>, <b>U.S. Stocks</b> and <b>International Stocks</b>.
+    main categories: <b>U.S. Bonds</b>, <b>U.S. Equities</b> and <b>International Equities</b>.
+</p>
+
+<p class="survey-block">
+    Equities (also referred to as <b>stock</b>) are considered more risky, but they also yield
+    a potentially higher reward. More diversified equities (i.e. international as opposed to U.S.
+    only) tend to be less volatile than their more concentrated counterparts. Lastly, bonds are
+    considered extremely stable but in many cases their <b>return-on-investment</b> can be lower
+    than the <b>inflation rate</b>.
+</p>
+
+<p class="survey-block">
+    Select your desired <b>asset allocation</b> based on your investment objectives. A larger
+    proportion of equities is riskier, but likely to outperform other choices in the long term
+    (over 10 years).
 </p>
 
 <div class="survey-block centered">
     <label for="target_allocations">Asset Allocation</label>
+    <span class="centered" style="font-size: small;">
+        Proportion of your portfolio allocated to each asset class from the three-fund portfolio.
+    </span>
     <select id="target_allocations" v-model="target_allocations">
         <option value="SPY:100" selected>100% U.S. Equities</option>
         <option value="VTI:80,BND:20">80% U.S. Equities and 20% U.S. Bonds</option>
         <option value="VTI:60,VXUS:20,BND:20">60% U.S. Equities, 20% International Equities and 20% U.S. Bonds</option>
+        <option value="VTI:40,VXUS:40,BND:20">40% U.S. Equities, 40% International Equities and 20% U.S. Bonds</option>
     </select>
 </div>
-
             </div>
 
             <div class="survey-screen animated">
@@ -148,12 +172,16 @@
 <p class="survey-block">
     Most brokers allow you to automatically reinvest any dividends from stock you own. This allows
     you to take advantage of the <b>compounding</b> nature of investing, which can have a
-    significant effect over a long period of time.
+    significant effect over a long period of time. Select whether you would like to automatically
+    reinvest dividends in the simulation:
 </p>
 
 <div class="survey-block centered">
     <div>
     <label for="dividend_reinvestment">Reinvest Dividends</label>
+    <span class="centered" style="font-size: small;">
+        Whether dividends should be automatically reinvested into your portfolio allocations.
+    </span>
     <select id="dividend_reinvestment" v-model="dividend_reinvestment">
         <option value="yes" selected>Yes</option>
         <option value="no">No</option>
@@ -176,12 +204,15 @@
 <p class="survey-block">
     To overcome this problem, investors rebalance their portfolio at certain time intervals. More
     frequent rebalancing does not always yield better results, and unless automated it will also
-    take up a significant amount of time and effort.
+    take up a significant amount of time and effort. Select your desired rebalancing strategy:
 </p>
 
 <div class="survey-block centered">
     <div>
     <label for="rebalance_schedule">Rebalancing Schedule</label>
+    <span class="centered" style="font-size: small;">
+        How often to simulate portfolio rebalancing toward the original asset allocation.
+    </span>
     <select id="rebalance_schedule" v-model="rebalance_schedule">
         <option value="never" selected>Never</option>
         <option value="yearly">Yearly</option>
@@ -218,6 +249,11 @@
     great advantage from a tax perspective.
 </p>
 
+<p class="survey-block">
+    Please select your desired DCA strategy. For example, if the initial investment was $100 and you
+    plan on adding $10 monthly, select a monthly schedule and then enter 10%.
+</p>
+
 <div class="survey-block centered">
     <div>
     <label for="dca_schedule">Dollar-Cost Averaging Schedule</label>
@@ -232,8 +268,6 @@
     <label for="dca_percent">Percentage of Initial Investment</label>
     <span class="centered" style="font-size: small;">
         Percentage of the initial investment being added to your portfolio at regular intervals.
-        For example, if the initial investment was $100 and you plan on adding $10 monthly,
-        enter 10%.
     </span>
     <input id="dca_percent" v-model="dca_percent" type="number" pattern="/d*" min="0" max="100" value="0">
 </div>
