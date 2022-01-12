@@ -1,6 +1,6 @@
 {
-  "displayName": "FinMango Calculator",
-  "description": "Financial calculator, made by FinMango",
+  "displayName": "FinMango Financial 💸 Calculators",
+  "description": "Financial calculators, made by FinMango",
   "vars": {
     "analytics": "G-B3RYND2Z48",
     "email": "oscar@finmango.org",
@@ -9,7 +9,13 @@
       "accent": "#FB780F",
       "background": "transparent",
       "text-on-background": "#000000"
-    }
+    },
+    "fire-name": "FinMango FIRE 🔥 Calculator",
+    "fire-description": "Financial Independence Retire Early calculator, made by FinMango",
+    "72-name": "FinMango Rule of 72 💰 Calculator",
+    "72-description": "Rule of 72 calculator, made by FinMango",
+    "portfolio-name": "FinMango Stock Portfolio 📈 Simulator",
+    "portfolio-description": "Stock portfolio simulator, made by FinMango"
   },
   "scripts": {
     "gulp": "gulp",

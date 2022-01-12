@@ -201,12 +201,14 @@
                         return;
                     }
 
+                    // Clear error message
+                    this.error_message = null;
+
+                    // Early exit: allocations do not amount to 100%
                     const alloc = this.alloc();
                     if (Object.values(alloc).reduce((total, val) => total + val, 0) !== 1) {
                         this.error_message = 'Total allocations must be equal to 100%';
                         return;
-                    } else {
-                        this.error_message = null;
                     }
 
                     // Load Google Charts asynchronously on demand
@@ -219,6 +221,12 @@
                         .filter(row => row.Date.localeCompare(this.start_date) >= 0)
                         .filter(row => row.Date.localeCompare(this.end_date) <= 0)
                         .filter(row => symbols.every(symbol => !isNaN(row[symbol])));
+
+                    // Early exit: no history found for the given parameters
+                    if (!history || history.length === 0) {
+                        this.error_message = 'No data found for the selected parameters. Try selecting a different date.';
+                        return;
+                    }
 
                     const returns = [];
                     const rolling = [1, 5, 10].reduce((agg, n) => ({ [n]: { returns: [], drawdowns: [] }, ...agg }), {});
