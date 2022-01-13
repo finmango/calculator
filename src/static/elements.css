@@ -30,6 +30,8 @@ input[type=range] {
 
 summary {
     cursor: pointer;
+    display: list-item;
+    font-size: large;
 }
 
 label small {

@@ -84,7 +84,7 @@
         <div class="spacer"></div>
 
         <details>
-            <summary style="display: list-item; font-size: large;">Adjust Calculator Options</summary>
+            <summary style="display: list-item">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
 
@@ -96,16 +96,7 @@
 
                 <script data-include src="init-form.tpl.html"></script>
 
-                <div>
-                    <label for="start_date">Simulation Start Date</label>
-                    <input type="date" v-model="start_date" min="1975-01-01" @change="update()" />
-                </div>
-
-                <div>
-                    <label for="start_date">Simulation End Date</label>
-                    <input type="date" v-model="end_date" min="1975-01-01" @change="update()" />
-                </div>
-
+                <script data-include src="form-dates.tpl.html"></script>
 
             </form>
         </details>

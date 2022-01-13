@@ -2,8 +2,8 @@
     <!-- Import CSV parser -->
     <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
 
-    <small class="centered">Dow Jones Industrial Average</small>
-    <div id="dow-jones-chart" class="chart-container"></div>
+    <small class="centered">S&P 500</small>
+    <div id="spy-history-chart" class="chart-container"></div>
 
     <script async>
         (async function () {
@@ -17,25 +17,24 @@
 
             // Compute drawdown
             const prices = P
-                .filter(row => !isNaN(row.DJI))
-                .map(row => ({ 'Date': new Date(row.Date), 'X': row.DJI }));
+                .filter(row => !isNaN(row.SPY))
+                .map(row => ({ 'Date': new Date(row.Date), 'X': row.SPY }));
 
             // Create DataTable
             await google.charts.load('current', { packages: ['corechart'] });
             const table = new google.visualization.DataTable();
             table.addColumn({ label: 'Date', type: 'date' });
-            table.addColumn({ label: 'Dow Jones Industrial Average', type: 'number' });
+            table.addColumn({ label: 'S&P 500', type: 'number' });
             table.addRows(prices.map(row => [row['Date'], row['X']]));
 
             // Wait for element to become visible
-            const chartContainer = document.querySelector('#dow-jones-chart');
+            const chartContainer = document.querySelector('#spy-history-chart');
             await new Promise(resolve => new IntersectionObserver(
                 entries => entries.some(x => x.isIntersecting) ? resolve() : void (0)).observe(chartContainer));
 
             // Render chart
             new google.visualization.AreaChart(chartContainer).draw(table, {
                 ...GOOGLE_CHARTS_CONFIG,
-                // title: `2000 Dot-Com Bubble`,
                 curveType: 'function',
                 focusTarget: 'category',
                 colors: null,
