@@ -76,9 +76,9 @@
 <p class="survey-block">
     There's no one-size-fits-all strategy when building a portfolio, but there are several formulas
     that have consistently worked for a number of investment objectives. At FinMango, we are strong
-    believers of long-term strategies based on <b>low-cost</b>, broad-market indices. By 
+    believers of long-term strategies based on <b>low-cost</b>, broad-market indices. By
     investing in broad-market indices, your wealth will be correlated to the growth of the overall
-    economy, instead of depending on the success of individual companies. 
+    economy, instead of depending on the success of individual companies.
 </p>
 
 <p class="survey-block">
@@ -93,13 +93,23 @@
     We have collected financial data dating back to 1973 and built this portfolio simulator, so you
     can see how different portfolios and strategies would have performed in a variety of economic
     conditions. Your answers to the following questions will be used to initialize the simulator
-    parameters.
+    parameters. Input your desired initial investment:
 </p>
+
+<div class="survey-block centered">
+    <div>
+    <label for="initial_investment">
+        Initial Investment
+        <small>Amount of cash used for the initial allocation of the portfolio.</small>
+    </label>
+    <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
+</div>
+</div>
             </div>
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Initial Investment
+    Market Downturns
 </h2>
 
 <p class="survey-block">
@@ -110,9 +120,11 @@
 
 <p class="survey-block">
     Another often underestimated factor is the <b>physchology</b> of investing. Particularly during
-    stressing times such as recessions or market crashes. During a market downturn, the safest
-    course of action is often to do nothing. This is easier said than done when you might see
-    your portfolio losing, for example, half of its value.
+    stressing times such as recessions or market crashes. During a <b>market downturn</b>, the
+    safest course of action is often to do nothing. This is easier said than done when you might see
+    your portfolio losing half of its value. For example, someone who invested in a fully
+    diversified 100% U.S. broad-market equity index (<b>VTI</b>) in 2007, would have experienced a
+    near 50% decrease in their investments within a year:
 </p>
 
 <div class="survey-block">
@@ -130,25 +142,9 @@
 <p class="survey-block">
     The difference between the highest historical value of your portfolio and the current value is
     called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
-    portfolio value. As an investor, you should ask yourself if you would be willing to stick to the
-    original investment strategy in that situation. For example, someone who invested in a fully
-    diversified 100% U.S. broad-market equity index (<b>VTI</b>) in 2007, would have experienced a
-    near 50% drawdown in their investments within a year:
+    portfolio value in a short period of time. As an investor, you should ask yourself if you would
+    be willing to stick to the original investment strategy in that situation.
 </p>
-
-<p class="survey-block">
-    Input your desired <b>initial investment</b>:
-</p>
-
-<div class="survey-block centered">
-    <div>
-    <label for="initial_investment">
-        Initial Investment
-        <small>Amount of cash used for the initial allocation of the portfolio.</small>
-    </label>
-    <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
-</div>
-</div>
             </div>
 
             <div class="survey-screen animated">
