@@ -82,15 +82,7 @@
 </p>
 
 <p class="survey-block">
-    Throughout history, both the global and the U.S. economy have consistently experienced
-    significant growth during any sufficient long period of time (at least 10 years). In other
-    words: if you invested in a broad-market index at any point in history for 10+ years, you would
-    have experienced a positive <b>return on your investment</b> (ROI). Even if you invested at the
-    worst possible time right before a recession!
-</p>
-
-<p class="survey-block">
-    We have collected financial data dating back to 1973 and built this portfolio simulator, so you
+    We have collected financial data dating back to 1970 and built this portfolio simulator, so you
     can see how different portfolios and strategies would have performed in a variety of economic
     conditions. Your answers to the following questions will be used to initialize the simulator
     parameters. Input your desired initial investment:
@@ -109,22 +101,26 @@
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Market Downturns
+    The Power of Time
 </h2>
+
+<p class="survey-block">
+    It's often said that <b>time in the market</b> always beats <b>timing the market</b>. What this
+    means is that investors with long-term goals and good planning are far more likely to succeed
+    than those who try to buy and sell assets at the "right" time.
+</p>
 
 <p class="survey-block">
     With a sufficiently long <b>investment horizon</b>, you don't need to start with a large initial
     investment to build wealth. In fact, for most people, time is a much more important factor than
-    the amount initially invested!
+    the amount initially invested! This is thanks to <b>compounding</b> nature of investment
+    returns.
 </p>
 
 <p class="survey-block">
-    Another often underestimated factor is the <b>physchology</b> of investing. Particularly during
-    stressing times such as recessions or market crashes. During a <b>market downturn</b>, the
-    safest course of action is often to do nothing. This is easier said than done when you might see
-    your portfolio losing half of its value. For example, someone who invested in a fully
-    diversified 100% U.S. broad-market equity index (<b>VTI</b>) in 2007, would have experienced a
-    near 50% decrease in their investments within a year:
+    The <b>Dow Jones Industrial Average Index</b> is one of the longest-running borad-market
+    indices. The tendency of overall growth across a sufficiently <b>diversified</b> number of
+    assets can be observed quite clearly:
 </p>
 
 <div class="survey-block">
@@ -132,37 +128,31 @@
     <!-- Import CSV parser -->
     <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
 
-    <small class="centered">2008 Recession Drawdown</small>
-    <div id="drawdown-recession-chart" class="chart-container"></div>
+    <small class="centered">Dow Jones Industrial Average</small>
+    <div id="dow-jones-chart" class="chart-container"></div>
 
-    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-05-01"&&e.Date<"2014-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"MM/yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=(await csv2json("https://finmango.github.io/portfolio-simulator/prices.csv")).filter(e=>!isNaN(e.DJI)).map(e=>({Date:new Date(e.Date),X:e.DJI}));console.log(e),await google.charts.load("current",{packages:["corechart"]});const a=new google.visualization.DataTable;a.addColumn({label:"Date",type:"date"}),a.addColumn({label:"Dow Jones Industrial Average",type:"number"}),a.addRows(e.map(e=>[e.Date,e.X]));const t=document.querySelector("#dow-jones-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(t)),new google.visualization.AreaChart(t).draw(a,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),t.style.backgroundImage="none"}();</script>
 </div>
 </div>
 
 <p class="survey-block">
-    The difference between the highest historical value of your portfolio and the current value is
-    called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
-    portfolio value in a short period of time. As an investor, you should ask yourself if you would
-    be willing to stick to the original investment strategy in that situation.
+    Throughout history, both the global and the U.S. economy have consistently experienced
+    significant growth during any sufficient long period of time (at least 10 years). In other
+    words: if you invested in a broad-market index at any point in history for 10+ years, you would
+    have experienced a positive <b>return on your investment</b> (ROI). Even if you invested at the
+    worst possible time right before a recession!
 </p>
             </div>
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Hedging Your Bets
+    Diversification
 </h2>
 
 <p class="survey-block">
     Of course, there are sometimes long periods of economic stagnation or even contraction. Instead
     of trying to <b>time the market</b>, you can add different types of assets to your portfolio
-    that will behave differently during those times. One popular choice for this purpose are
-    <b>bonds</b>.
-</p>
-
-<p class="survey-block">
-    Having a diversity of assets in your portfolio helps minimize <b>drawdowns</b> and often results
-    in higher overall performance compared to holding a single class of assets, especially when
-    a <b>rebalancing strategy</b> is employed.
+    that will behave differently during those times.
 </p>
 
 <p class="survey-block">
@@ -204,57 +194,6 @@
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Reinvesting Dividends
-</h2>
-
-<p class="survey-block">
-    Most well-established and profitable companies distribute <b>dividends</b> to their
-    shareholders. This means that, simply by owning shares of a certain company, you will be given a
-    determined amount of cash for each share that you own. This is often on a quarterly basis, but
-    it could also be more or less frequent depending on the company.
-</p>
-
-<p class="survey-block">
-    Many of the popular <b>exchange-traded funds</b> (ETF) that track broad-market indices
-    distribute the dividends of the companies that are part of the index back to the shareholders,
-    so you don't need to own stock of individual companies to benefit from those dividends.
-</p>
-
-<div class="survey-block">
-    <div>
-    <!-- Import CSV parser -->
-    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
-
-    <small class="centered">Compounding Effect of Dividend Reinvestment</small>
-    <div id="dividends-comparison-chart" class="chart-container"></div>
-
-    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e="https://finmango.github.io/portfolio-simulator",t=await csv2json(`${e}/daily-returns.csv`),a=await csv2json(`${e}/daily-returns-with-dividends-reinvested.csv`),n={D:1,R:1},i=[Object.assign({},n)];for(let e=0;e<Math.min(t.length,a.length);e++)isNaN(t[e].SPY)||isNaN(a[e].SPY)||(n.D=n.D*(1+t[e].SPY),n.R=n.R*(1+a[e].SPY),i.push({Date:new Date(t[e].Date),D:n.D,R:n.R}));await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"SPY",type:"number"}),o.addColumn({label:"SPY with Dividends Reinvested",type:"number"}),o.addRows(i.map(e=>[e.Date,e.D,e.R]));const s=document.querySelector("#dividends-comparison-chart");await new Promise(e=>new IntersectionObserver(t=>t.some(e=>e.isIntersecting)?e():void 0).observe(s)),new google.visualization.LineChart(s).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,legend:{...GOOGLE_CHARTS_CONFIG.legend,position:"in"},hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"MM/yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,left:0}}),s.style.backgroundImage="none"}();</script>
-</div>
-</div>
-
-<p class="survey-block">
-    Most brokers allow you to automatically reinvest any dividends from stock you own. This allows
-    you to take advantage of the <b>compounding</b> nature of investing, which can have a
-    significant effect over a long period of time. Select whether you would like to automatically
-    reinvest dividends in the simulation:
-</p>
-
-<div class="survey-block centered">
-    <div>
-    <label for="dividend_reinvestment">
-        Reinvest Dividends
-        <small>Whether dividends should be automatically reinvested into your portfolio allocations.</small>
-    </label>
-    <select id="dividend_reinvestment" v-model="dividend_reinvestment">
-        <option value="yes" selected>Yes</option>
-        <option value="no">No</option>
-    </select>
-</div>
-</div>
-            </div>
-
-            <div class="survey-screen animated">
-                <h2 class="survey-header">
     Rebalancing Strategy
 </h2>
 
@@ -265,9 +204,30 @@
 </p>
 
 <p class="survey-block">
-    To overcome this problem, investors rebalance their portfolio at certain time intervals. More
-    frequent rebalancing does not always yield better results, and unless automated it will also
-    take up a significant amount of time and effort. Select your desired rebalancing strategy:
+    The difference between the highest historical value of your portfolio and the current value is
+    called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
+    portfolio value in a short period of time. Having a diversity of assets in your portfolio helps
+    minimize those drawdowns and often results in higher overall performance compared to holding a
+    single class of assets, especially when a <b>rebalancing strategy</b> is employed.
+</p>
+
+<div class="survey-block">
+    <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <small class="centered">2008 Recession Drawdown</small>
+    <div id="drawdown-recession-chart" class="chart-container"></div>
+
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-01-01"&&e.Date<"2017-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+</div>
+</div>
+
+<p class="survey-block">
+    To stay close to the target asset allocation, investors rebalance their portfolio at certain
+    time intervals. More frequent rebalancing does not always yield better results, and unless
+    automated it will also take up a significant amount of time and effort. Select your desired
+    rebalancing strategy:
 </p>
 
 <div class="survey-block centered">
