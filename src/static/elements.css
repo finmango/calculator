@@ -1,7 +1,8 @@
 header * {
     box-sizing: border-box;
     flex: 1 1 auto;
-    padding: 1em 0.2em;
+    padding: 0.5em 0.2em;
+    padding-bottom: 0.2em;
 }
 
 .single-column {
@@ -54,13 +55,14 @@ label small {
 
 .survey-header {
     text-transform: uppercase;
-    font-size: xx-large;
+    font-size: x-large;
     text-align: center;
     width: auto;
     display: block;
     margin-left: auto;
     margin-right: auto;
     flex: 1;
+    padding: 0;
 }
 
 .survey-block img {
