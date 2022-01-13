@@ -32,24 +32,28 @@
         <table :class="{invisible: error_message !== null}" class="centered" style="display: table; font-size: small">
             <tr>
                 <th>Period</th>
+                <th>Annualized</th>
                 <th>Average</th>
                 <th>Max</th>
                 <th>Min</th>
             </tr>
             <tr v-show="performance['1 Year'].avg">
                 <td>1 Year</td>
+                <td>{{ Formatter.percent(performance['1 Year'].annualized, true) }}</td>
                 <td>{{ Formatter.percent(performance['1 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(performance['1 Year'].max, true) }}</td>
                 <td>{{ Formatter.percent(performance['1 Year'].min, true) }}</td>
             </tr>
             <tr v-show="performance['5 Year'].avg">
                 <td>5 Years</td>
+                <td>{{ Formatter.percent(performance['5 Year'].annualized, true) }}</td>
                 <td>{{ Formatter.percent(performance['5 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(performance['5 Year'].max, true) }}</td>
                 <td>{{ Formatter.percent(performance['5 Year'].min, true) }}</td>
             </tr>
             <tr v-show="performance['10 Year'].avg">
                 <td>10 Years</td>
+                <td>{{ Formatter.percent(performance['10 Year'].annualized, true) }}</td>
                 <td>{{ Formatter.percent(performance['10 Year'].avg, true) }}</td>
                 <td>{{ Formatter.percent(performance['10 Year'].max, true) }}</td>
                 <td>{{ Formatter.percent(performance['10 Year'].min, true) }}</td>
@@ -275,6 +279,7 @@
                         this.performance[key].avg = approx(sum / rolling[year].returns.length);
                         this.performance[key].max = approx(Math.max(...rolling[year].returns));
                         this.performance[key].min = approx(Math.min(...rolling[year].returns));
+                        this.performance[key].annualized = approx(sum / rolling[year].returns.length / year);
                     });
 
                     this.performance = { ...this.performance };
