@@ -36,6 +36,15 @@
         });
     };
 
+    window.csv2json = function csv2json(url) {
+        return new Promise(resolve =>
+            Papa.parse(url, { download: true, complete: resolve })
+        ).then(res => res.data).then(rows => rows.slice(1).map(row =>
+            rows[0].reduce((agg, col, idx) =>
+                Object.assign(agg, { [col]: col === 'Date' ? row[idx] : parseFloat(row[idx]) }), {})
+        ));
+    };
+
     HTMLElement.prototype.attach = function (tag, attrs = {}) {
         const elem = document.createElement(tag);
         Object.keys(attrs).forEach(key => elem.setAttribute(key, attrs[key]));
