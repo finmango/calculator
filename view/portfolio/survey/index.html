@@ -63,24 +63,10 @@
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Building a Portfolio
+    Build Your Portfolio
 </h2>
 
-<p class="survey-block">
-    In order to invest your savings, you need to build a <b>portfolio</b>. The portfolio consists of
-    a series of <b>assets</b> to which funds will be allocated. Those assets can be <b>stocks</b>,
-    <b>bonds</b>, and other financial instruments. Which assets are selected and the proportion of
-    funds allocated to them is what makes a it portfolio.
-</p>
-
-<p class="survey-block">
-    There's no one-size-fits-all strategy when building a portfolio, but there are several formulas
-    that have consistently worked for a number of <b>investment objectives</b>. We have collected
-    financial data dating back to 1970 and built this portfolio simulator, so you can see how
-    different portfolios and strategies would have performed in a variety of economic conditions.
-    Your answers to the following questions will be used to initialize the simulator parameters.
-    Input your desired initial investment:
-</p>
+<div class="spacer"></div>
 
 <div class="survey-block centered">
     <div>
@@ -91,83 +77,108 @@
     <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
 </div>
 </div>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item;">Learn more about building a portfolio</summary>
+
+    <p class="survey-block">
+        In order to invest, you need to build a <b>portfolio</b>. A portfolio consists of a series
+        of <b>assets</b> to which funds will be allocated. Those assets can be <b>stocks</b>,
+        <b>bonds</b>, and other financial instruments.
+    </p>
+
+    <p class="survey-block">
+        There's no one-size-fits-all strategy when building a portfolio, but there are several formulas
+        that have consistently worked for a number of <b>investment objectives</b>.
+    </p>
+
+    <p class="survey-block">
+        We have collected financial data dating back to 1970 and built this portfolio simulator, so
+        you can see how different portfolios and strategies would have performed in a variety of
+        economic conditions. Your answers to the following questions will be used to initialize the
+        simulator parameters.
+    </p>
+</details>
             </div>
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    The Power of Time
+    Start and End Dates
 </h2>
+<div class="spacer"></div>
 
-<p class="survey-block">
-    It's often said that <b>time in the market</b> always beats <b>timing the market</b>. What this
-    means is that investors with long-term goals and good planning are far more likely to succeed
-    than those who try to buy and sell assets at the <i>right time</i>.
-</p>
-
-<p class="survey-block">
-    With a sufficiently long <b>investment horizon</b>, you don't need to start with a large initial
-    investment to build wealth. In fact, for most people, time is a much more important factor than
-    the amount initially invested! This is thanks to <b>compounding</b> nature of investment
-    returns.
-</p>
-
-<p class="survey-block">
-    The <b>Dow Jones Industrial Average Index</b> is one of the longest-running borad-market
-    indices. The tendency of overall growth across a sufficiently <b>diversified</b> number of
-    assets can be observed quite clearly:
-</p>
-
-<div class="survey-block">
+<div class="survey-block centered">
     <div>
+    <label for="start_date">
+        Start Date
+        <small>Start date for the simulation period.</small>
+    </label>
+    <input id="start_date" type="date" v-model="start_date" min="1970-01-01" value="1995-01-01">
+</div>
+
+<div>
+    <label for="end_date">
+        End Date
+        <small>End date for the simulation period.</small>
+    </label>
+    <input id="end_date" type="date" v-model="end_date" min="1970-01-01" value="2022-01-01">
+</div>
+</div>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item;">Learn more the power of time</summary>
+
+    <p class="survey-block">
+        It's often said that <b>time in the market</b> always beats <b>timing the market</b>. What this
+        means is that investors with long-term goals and good planning are far more likely to succeed
+        than those who try to buy and sell assets at the <i>right time</i>.
+    </p>
+
+    <p class="survey-block">
+        With a sufficiently long <b>investment horizon</b>, you don't need to start with a large initial
+        investment to build wealth. In fact, for most people, time is a much more important factor than
+        the amount initially invested! This is thanks to <b>compounding</b> nature of investment
+        returns.
+    </p>
+
+    <p class="survey-block">
+        The <b>S&amp;P 500 Index</b> tracks a 500 leading U.S. publicly traded companies. Since it's
+        inception in 1993, the tendency of overall growth across a sufficiently <b>diversified</b>
+        number of assets can be observed quite clearly:
+    </p>
+
+    <div class="survey-block">
+        <div>
     <!-- Import CSV parser -->
     <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
 
-    <small class="centered">Dow Jones Industrial Average</small>
-    <div id="dow-jones-chart" class="chart-container"></div>
+    <small class="centered">S&amp;P 500</small>
+    <div id="spy-history-chart" class="chart-container"></div>
 
-    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=(await csv2json("https://finmango.github.io/portfolio-simulator/prices.csv")).filter(e=>!isNaN(e.DJI)).map(e=>({Date:new Date(e.Date),X:e.DJI}));console.log(e),await google.charts.load("current",{packages:["corechart"]});const a=new google.visualization.DataTable;a.addColumn({label:"Date",type:"date"}),a.addColumn({label:"Dow Jones Industrial Average",type:"number"}),a.addRows(e.map(e=>[e.Date,e.X]));const t=document.querySelector("#dow-jones-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(t)),new google.visualization.AreaChart(t).draw(a,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),t.style.backgroundImage="none"}();</script>
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=(await csv2json("https://finmango.github.io/portfolio-simulator/prices.csv")).filter(e=>!isNaN(e.SPY)).map(e=>({Date:new Date(e.Date),X:e.SPY}));await google.charts.load("current",{packages:["corechart"]});const t=new google.visualization.DataTable;t.addColumn({label:"Date",type:"date"}),t.addColumn({label:"S&P 500",type:"number"}),t.addRows(e.map(e=>[e.Date,e.X]));const a=document.querySelector("#spy-history-chart");await new Promise(e=>new IntersectionObserver(t=>t.some(e=>e.isIntersecting)?e():void 0).observe(a)),new google.visualization.AreaChart(a).draw(t,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),a.style.backgroundImage="none"}();</script>
 </div>
-</div>
+    </div>
 
-<p class="survey-block">
-    Throughout history, both the global and the U.S. economy have consistently experienced
-    significant growth during any sufficient long period of time (at least 10 years). In other
-    words: if you invested in a broad-market index at any point in history for 10+ years, you would
-    have experienced a positive <b>return on your investment</b> (ROI). Even if you invested at the
-    worst possible time right before a recession!
-</p>
+    <p class="survey-block">
+        Throughout history, both the global and the U.S. economy have consistently experienced
+        significant growth during any sufficient long period of time (at least 10 years). In other
+        words: if you invested in a broad-market index at any point in history for 10+ years, you would
+        have experienced a positive <b>return on your investment</b> (ROI). Even if you invested at the
+        worst possible time right before a recession!
+    </p>
+</details>
             </div>
 
             <div class="survey-screen animated">
                 <h2 class="survey-header">
-    Diversification
+    Asset Allocation
 </h2>
 
-<p class="survey-block">
-    Of course, there are sometimes long periods of economic stagnation or even contraction. Instead
-    of trying to <b>time the market</b>, you can add different types of assets to your portfolio
-    that will behave differently during those times.
-</p>
-
-<p class="survey-block">
-    A very common strategy for U.S. investors is the <b>three-fund portfolio</b>. An investor
-    following this strategy simply selects a combination of funds that provide exposure to three
-    main categories: <b>U.S. Bonds</b>, <b>U.S. Equities</b> and <b>International Equities</b>.
-</p>
-
-<p class="survey-block">
-    Equities (also referred to as <b>stock</b>) are considered more risky, but they also yield
-    a potentially higher reward. More diversified equities (i.e. international as opposed to U.S.
-    only) tend to be less volatile than their more concentrated counterparts. Lastly, bonds are
-    considered extremely stable but in many cases their <b>return-on-investment</b> can be lower
-    than the <b>inflation rate</b>.
-</p>
-
-<p class="survey-block">
-    Select your desired <b>asset allocation</b> based on your investment objectives. A larger
-    proportion of equities is riskier, but likely to outperform other choices in the long term
-    (over 10 years).
-</p>
+<div class="spacer"></div>
 
 <div class="survey-block centered">
     <label for="target_allocations">
@@ -178,12 +189,43 @@
         </small>
     </label>
     <select id="target_allocations" v-model="target_allocations">
-        <option value="SPY:100" selected>100% U.S. Equities</option>
-        <option value="VTI:80,BND:20">80% U.S. Equities and 20% U.S. Bonds</option>
-        <option value="VTI:60,VXUS:20,BND:20">60% U.S. Equities, 20% International Equities and 20% U.S. Bonds</option>
-        <option value="VTI:40,VXUS:40,BND:20">40% U.S. Equities, 40% International Equities and 20% U.S. Bonds</option>
+        <option value="SPY:100" selected>100% U.S. Stocks</option>
+        <option value="VTI:80,BND:20">80% U.S. Stocks and 20% U.S. Bonds</option>
+        <option value="VTI:60,VXUS:20,BND:20">60% U.S. Stocks, 20% International Stocks and 20% U.S. Bonds</option>
+        <option value="VTI:40,VXUS:40,BND:20">40% U.S. Stocks, 40% International Stocks and 20% U.S. Bonds</option>
     </select>
 </div>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item">Learn more about asset allocation</summary>
+
+    <p class="survey-block">
+        Of course, there are sometimes long periods of economic stagnation or even contraction. Instead
+        of trying to <b>time the market</b>, you can add different types of assets to your portfolio
+        that will behave differently during those times.
+    </p>
+
+    <p class="survey-block">
+        A very common strategy for U.S. investors is the <b>three-fund portfolio</b>. An investor
+        following this strategy simply selects a combination of funds that provide exposure to three
+        main categories: <b>U.S. Bonds</b>, <b>U.S. Stocks</b> and <b>International Stocks</b>.
+    </p>
+
+    <p class="survey-block">
+        Stocks are considered more risky, but they also yield a potentially higher reward. More
+        diversified stocks (i.e. international as opposed to U.S. only) tend to be less volatile
+        than their more concentrated counterparts. Lastly, bonds are considered extremely stable but
+        in many cases their <b>return-on-investment</b> can be lower than the <b>inflation rate</b>.
+    </p>
+
+    <p class="survey-block">
+        Select your desired <b>asset allocation</b> based on your investment objectives. A larger
+        proportion of Stocks is riskier, but likely to outperform other choices in the long term
+        (over 10 years).
+    </p>
+</details>
             </div>
 
             <div class="survey-screen animated">
@@ -191,38 +233,7 @@
     Rebalancing Strategy
 </h2>
 
-<p class="survey-block">
-    <b>Rebalancing</b> is an extremely important concept when it comes to building a successful
-    portfolio. As time passes and some of the assets in your portfolio outperform others, your
-    portfolio deviates from its intended <b>asset allocation</b>.
-</p>
-
-<p class="survey-block">
-    The difference between the highest historical value of your portfolio and the current value is
-    called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
-    portfolio value in a short period of time. Having a diversity of assets in your portfolio helps
-    minimize those drawdowns and often results in higher overall performance compared to holding a
-    single class of assets, especially when a <b>rebalancing strategy</b> is employed.
-</p>
-
-<div class="survey-block">
-    <div>
-    <!-- Import CSV parser -->
-    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
-
-    <small class="centered">2008 Recession Drawdown</small>
-    <div id="drawdown-recession-chart" class="chart-container"></div>
-
-    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-01-01"&&e.Date<"2017-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
-</div>
-</div>
-
-<p class="survey-block">
-    To stay close to the target asset allocation, investors rebalance their portfolio at certain
-    time intervals. More frequent rebalancing does not always yield better results, and unless
-    automated it will also take up a significant amount of time and effort. Select your desired
-    rebalancing strategy:
-</p>
+<div class="spacer"></div>
 
 <div class="survey-block centered">
     <div>
@@ -242,6 +253,45 @@
     </select>
 </div>
 </div>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item; font-size: large;">Learn more about rebalancing</summary>
+
+    <p class="survey-block">
+        <b>Rebalancing</b> is an extremely important concept when it comes to building a successful
+        portfolio. As time passes and some of the assets in your portfolio outperform others, your
+        portfolio deviates from its intended <b>asset allocation</b>.
+    </p>
+
+    <p class="survey-block">
+        The difference between the highest historical value of your portfolio and the current value is
+        called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
+        portfolio value in a short period of time. Having a diversity of assets in your portfolio helps
+        minimize those drawdowns and often results in higher overall performance compared to holding a
+        single class of assets, especially when a <b>rebalancing strategy</b> is employed.
+    </p>
+
+    <div class="survey-block">
+        <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <small class="centered">2008 Recession Drawdown</small>
+    <div id="drawdown-recession-chart" class="chart-container"></div>
+
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-01-01"&&e.Date<"2017-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+</div>
+    </div>
+
+    <p class="survey-block">
+        To stay close to the target asset allocation, investors rebalance their portfolio at certain
+        time intervals. More frequent rebalancing does not always yield better results, and unless
+        automated it will also take up a significant amount of time and effort. Select your desired
+        rebalancing strategy:
+    </p>
+</details>
             </div>
 
             <div class="survey-screen animated">
@@ -249,30 +299,7 @@
     Dollar-Cost Averaging
 </h2>
 
-<p class="survey-block">
-    As you already know, asset values don't go in a straight line. One common strategy to take
-    advantage of market volatility is <b>dollar-cost averaging</b> (DCA). Instead of investing all
-    of your wealth into your portfolio as one lump-sum, you can slowly add the assets to your
-    portfolio at regular intervals. The strategy works like this:
-</p>
-
-<p class="survey-block">
-    When the markets are up (and potentially overvalued) then $1 will purchase a smaller amount of
-    assets. When the markets are down (and potentially undervalued) then the same $1 will let you
-    acquire more assets.
-</p>
-
-<p class="survey-block">
-    In many cases, DCA is a strategy that is implemented naturally. For example, this can be done
-    by automatically investing a portion of your paycheck. Another benefit of this strategy is that
-    it allows you to (at least partially) rebalance your portfolio without selling any assets, which
-    provides a great advantage from a tax perspective.
-</p>
-
-<p class="survey-block">
-    Please select your desired DCA strategy. For example, if the initial investment was $200 and you
-    plan on adding $10 monthly, select a monthly schedule and then enter $10.
-</p>
+<div class="spacer"></div>
 
 <div class="survey-block centered">
     <div>
@@ -288,7 +315,7 @@
     </select>
 </div>
 <div v-show="dca_schedule !== 'never'">
-    <label for="dca_amount">DCA Amount</label>
+    <label for="dca_amount">Dollar-Cost Averaging Amount</label>
     <br>
     <small>
         Amount of dollars being added to your portfolio at regular intervals.
@@ -296,6 +323,37 @@
     <input id="dca_amount" v-model="dca_amount" type="number" pattern="/d+" min="0" value="0">
 </div>
 </div>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item;">Learn more about dollar-cost averaging</summary>
+
+    <p class="survey-block">
+        As you already know, asset values don't go in a straight line. One common strategy to take
+        advantage of market volatility is <b>dollar-cost averaging</b> (DCA). Instead of investing all
+        of your wealth into your portfolio as one lump-sum, you can slowly add the assets to your
+        portfolio at regular intervals. The strategy works like this:
+    </p>
+
+    <p class="survey-block">
+        When the markets are up (and potentially overvalued) then $1 will purchase a smaller amount of
+        assets. When the markets are down (and potentially undervalued) then the same $1 will let you
+        acquire more assets.
+    </p>
+
+    <p class="survey-block">
+        In many cases, DCA is a strategy that is implemented naturally. For example, this can be done
+        by automatically investing a portion of your paycheck. Another benefit of this strategy is that
+        it allows you to (at least partially) rebalance your portfolio without selling any assets, which
+        provides a great advantage from a tax perspective.
+    </p>
+
+    <p class="survey-block">
+        Select your desired DCA strategy. For example, if the initial investment was $200 and you
+        plan on adding $10 monthly, select a monthly schedule and then enter $10.
+    </p>
+</details>
             </div>
 
         </div>

@@ -142,7 +142,7 @@
         <div class="spacer"></div>
 
         <details>
-            <summary style="display: list-item; font-size: large;">Adjust Calculator Options</summary>
+            <summary style="display: list-item">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
 
@@ -176,7 +176,7 @@
     </select>
 </div>
 <div v-show="dca_schedule !== 'never'">
-    <label for="dca_amount">DCA Amount</label>
+    <label for="dca_amount">Dollar-Cost Averaging Amount</label>
     <br>
     <small>
         Amount of dollars being added to your portfolio at regular intervals.
@@ -204,15 +204,20 @@
 </div>
 
                 <div>
-                    <label for="start_date">Simulation Start Date</label>
-                    <input type="date" v-model="start_date" min="1975-01-01" @change="update()">
-                </div>
+    <label for="start_date">
+        Start Date
+        <small>Start date for the simulation period.</small>
+    </label>
+    <input id="start_date" type="date" v-model="start_date" min="1970-01-01" value="1995-01-01">
+</div>
 
-                <div>
-                    <label for="start_date">Simulation End Date</label>
-                    <input type="date" v-model="end_date" min="1975-01-01" @change="update()">
-                </div>
-
+<div>
+    <label for="end_date">
+        End Date
+        <small>End date for the simulation period.</small>
+    </label>
+    <input id="end_date" type="date" v-model="end_date" min="1970-01-01" value="2022-01-01">
+</div>
 
             </form>
         </details>
