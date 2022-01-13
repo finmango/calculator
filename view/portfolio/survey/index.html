@@ -115,6 +115,18 @@
     your portfolio losing, for example, half of its value.
 </p>
 
+<div class="survey-block">
+    <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <small class="centered">2008 Recession Drawdown</small>
+    <div id="drawdown-recession-chart" class="chart-container"></div>
+
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-05-01"&&e.Date<"2014-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"MM/yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+</div>
+</div>
+
 <p class="survey-block">
     The difference between the highest historical value of your portfolio and the current value is
     called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
@@ -123,11 +135,6 @@
     diversified 100% U.S. broad-market equity index (<b>VTI</b>) in 2007, would have experienced a
     near 50% drawdown in their investments within a year:
 </p>
-
-<div class="survey-block">
-    <small class="centered">2008 Recession Drawdown</small>
-    <img src="../../../static/drawdown-vti-2009.png">
-</div>
 
 <p class="survey-block">
     Input your desired <b>initial investment</b>:
@@ -218,8 +225,15 @@
 </p>
 
 <div class="survey-block">
+    <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
     <small class="centered">Compounding Effect of Dividend Reinvestment</small>
-    <img src="https://finmango.github.io/portfolio-simulator/SPY-dividends.svg">
+    <div id="dividends-comparison-chart" class="chart-container"></div>
+
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e="https://finmango.github.io/portfolio-simulator",t=await csv2json(`${e}/daily-returns.csv`),a=await csv2json(`${e}/daily-returns-with-dividends-reinvested.csv`),n={D:1,R:1},i=[Object.assign({},n)];for(let e=0;e<Math.min(t.length,a.length);e++)isNaN(t[e].SPY)||isNaN(a[e].SPY)||(n.D=n.D*(1+t[e].SPY),n.R=n.R*(1+a[e].SPY),i.push({Date:new Date(t[e].Date),D:n.D,R:n.R}));await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"SPY",type:"number"}),o.addColumn({label:"SPY with Dividends Reinvested",type:"number"}),o.addRows(i.map(e=>[e.Date,e.D,e.R]));const s=document.querySelector("#dividends-comparison-chart");await new Promise(e=>new IntersectionObserver(t=>t.some(e=>e.isIntersecting)?e():void 0).observe(s)),new google.visualization.LineChart(s).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,legend:{...GOOGLE_CHARTS_CONFIG.legend,position:"in"},hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"MM/yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,left:0}}),s.style.backgroundImage="none"}();</script>
+</div>
 </div>
 
 <p class="survey-block">
