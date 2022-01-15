@@ -4,9 +4,91 @@
 
     <div id="portfolio-calculator-data">
 
+        <div class="modal">
+            <input id="symbols-modal" type="checkbox">
+            <label for="symbols-modal" class="overlay"></label>
+            <article>
+                <header>
+                    <h3>Symbol Information</h3>
+                    <label for="symbols-modal" class="close">×</label>
+                </header>
+                <section class="content">
+                    <table>
+                        <tr style="display: none;">
+                            <th>Symbol</th>
+                            <th>Description</th>
+                        </tr>
+                        <tr>
+                            <td>CASH</td>
+                            <td>Cash allocation in U.S. dollars</td>
+                        </tr>
+                        <tr>
+                            <td>SPY</td>
+                            <td>
+                                <a href="https://www.ssga.com/us/en/institutional/etfs/funds/spdr-sp-500-etf-trust-spy"
+                                    target="_blank">
+                                    SPDR S&P 500 ETF Trust
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TLT</td>
+                            <td>
+                                <a href="https://www.ishares.com/us/products/239454/TLT" target="_blank">
+                                    iShares 20+ Year Treasury Bond ETF
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>VTI</td>
+                            <td>
+                                <a href="https://investor.vanguard.com/etf/profile/VTI" target="_blank">
+                                    Vanguard Total Stock Market ETF
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>VXUS</td>
+                            <td>
+                                <a href="https://investor.vanguard.com/etf/profile/VXUS" target="_blank">
+                                    Vanguard Total International Stock ETF
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>BND</td>
+                            <td>
+                                <a href="https://investor.vanguard.com/etf/profile/BND" target="_blank">
+                                    Vanguard Total Bond Market ETF
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>UPRO</td>
+                            <td>
+                                <a href="https://www.proshares.com/our-etfs/leveraged-and-inverse/upro" target="_blank">
+                                    ProShares UltraPro S&P500
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>TMF</td>
+                            <td>
+                                <a href="https://www.direxion.com/product/daily-20-year-treasury-bull-bear-3x-etfs"
+                                    target="_blank">
+                                    Direxion Daily 20+ Year Treasury Bull
+                                </a>
+                            </td>
+                        </tr>
+                    </table>
+                </section>
+            </article>
+            <footer></footer>
+        </div>
+
         <div>
             <h2 v-if="error_message" class="centered" style="text-transform: uppercase;">{{error_message}}</h2>
-            <div v-else>
+            <div :class="{invisible: error_message !== null}">
                 <h2 class="centered" style="text-transform: uppercase;">
                     The total returns for the simulated period are
                     {{ Formatter.percent(performance.returns, true) }}
@@ -75,6 +157,7 @@
                             max="100" step="5" style="margin-top: -10px; padding: 0;">
                     </div>
                 </div>
+                <label for="symbols-modal">ℹ️ What's this?</label>
             </div>
 
             <div class="three-fourth">
@@ -93,15 +176,10 @@
             <summary style="display: list-item">Adjust Calculator Options</summary>
 
             <form class="flex one two-600">
-
                 <script data-include src="rebalance-form.tpl.html"></script>
-
                 <script data-include src="dca-form.tpl.html"></script>
-
                 <script data-include src="div-form.tpl.html"></script>
-
                 <script data-include src="init-form.tpl.html"></script>
-
                 <script data-include src="form-dates.tpl.html"></script>
 
             </form>
@@ -128,7 +206,7 @@
             el: '#portfolio-calculator-data',
             data: {
                 error_message: null,
-                symbols: ['SPY', 'TLT', 'VTI', 'VXUS', 'BND', 'UPRO', 'TMF', 'CASH'],
+                symbols: ['CASH', 'SPY', 'TLT', 'VTI', 'VXUS', 'BND', 'UPRO', 'TMF'],
                 target_allocations: 'SPY:100',
                 allocations_percent: {},
                 initial_investment: 1,
@@ -139,7 +217,6 @@
                 dca_amount: 0,
                 start_date: '1995-01-01',
                 end_date: new Date().toISOString().slice(0, 10),
-                portfolio_returns: 0,
                 performance: { '1 Year': {}, '5 Year': {}, '10 Year': {} },
                 debouncer1: null,
                 debouncer2: null,
@@ -265,11 +342,10 @@
                         });
                     }
 
-                    this.portfolio_returns = Math.round((C.Total - 1) * 100) / 100;
                     this.performance['returns'] = Math.round((C.Total - 1) * 100) / 100;
                     this.performance['dca_count'] = performance['DCA'];
-                    this.performance['rebalance_count'] = performance['Rebalances'];
                     this.performance['dca_total'] = performance['DCA'] * this.dca_ratio;
+                    this.performance['rebalance_count'] = performance['Rebalances'];
                     this.performance['start_date'] = returns[0]['Date'];
                     this.performance['end_date'] = returns.at(-1)['Date'];
                     this.performance['max_drawdown'] = Math.min(...returns.map(row => row['Drawdown']));
@@ -353,7 +429,8 @@
         app.daily_returns_reinvested = csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`);
 
         // Ask VueJS to reload anytime any of the data changes
-        Object.keys(data).forEach(key => app.$watch(key, function () { this.update() }, { deep: true }));
+        Object.keys(data).concat(['dividend_reinvestment'])
+            .forEach(key => app.$watch(key, function () { this.update() }, { deep: true }));
 
         // Make sure load is triggered even if we didn't pass any data
         app.update();
