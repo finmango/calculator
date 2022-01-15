@@ -36,7 +36,7 @@
     <script type="text/javascript" src="../../../static/formatter.min.js"></script>
     <script type="text/javascript" src="../../../static/data-helper.min.js"></script>
     <script type="text/javascript" src="../../../static/polyfills.min.js"></script>
-    <script type="text/javascript">const DEFAULT_OPTIONS={font:"Goldman Sans",chart_legend_position:"none",chart_padding_top:24,chart_padding_left:64,chart_padding_right:0,chart_padding_bottom:48};CURRENT_OPTIONS=Object.keys(DEFAULT_OPTIONS).reduce((t,e)=>Object.assign(t,{[e]:sessionStorage.getItem(e)||DEFAULT_OPTIONS[e]}),{}),GOOGLE_CHARTS_CONFIG=window.GOOGLE_CHARTS_CONFIG||{theme:"material",fontName:CURRENT_OPTIONS.font,titleTextStyle:{fontName:CURRENT_OPTIONS.font},colors:["{{theme-primary}}"],legend:{position:CURRENT_OPTIONS.chart_legend_position},chartArea:{width:"100%",height:"100%",top:parseInt(CURRENT_OPTIONS.chart_padding_top||24),left:parseInt(CURRENT_OPTIONS.chart_padding_left||64),right:parseInt(CURRENT_OPTIONS.chart_padding_right||0),bottom:parseInt(CURRENT_OPTIONS.chart_padding_bottom||48)},titlePosition:"in",axisTitlesPosition:"in",hAxis:{textPosition:"bottom",textStyle:{fontName:CURRENT_OPTIONS.font}},vAxis:{textPosition:"out",viewWindow:{min:0},textStyle:{fontName:CURRENT_OPTIONS.font}},height:parseInt(CURRENT_OPTIONS.chart_height||300)};</script>
+    <script type="text/javascript">const DEFAULT_OPTIONS={font:"Goldman Sans",chart_legend_position:"none",chart_padding_top:24,chart_padding_left:64,chart_padding_right:0,chart_padding_bottom:48};CURRENT_OPTIONS=Object.keys(DEFAULT_OPTIONS).reduce((t,o)=>Object.assign(t,{[o]:sessionStorage.getItem(o)||DEFAULT_OPTIONS[o]}),{}),GOOGLE_CHARTS_CONFIG=window.GOOGLE_CHARTS_CONFIG||{theme:"material",fontName:CURRENT_OPTIONS.font,titleTextStyle:{fontName:CURRENT_OPTIONS.font},backgroundColor:"#FCFCFC",colors:["#FB780F"],legend:{position:CURRENT_OPTIONS.chart_legend_position},chartArea:{width:"100%",height:"100%",top:parseInt(CURRENT_OPTIONS.chart_padding_top||24),left:parseInt(CURRENT_OPTIONS.chart_padding_left||64),right:parseInt(CURRENT_OPTIONS.chart_padding_right||0),bottom:parseInt(CURRENT_OPTIONS.chart_padding_bottom||48),backgroundColor:"#FCFCFC"},titlePosition:"in",axisTitlesPosition:"in",hAxis:{textPosition:"bottom",textStyle:{fontName:CURRENT_OPTIONS.font}},vAxis:{textPosition:"out",viewWindow:{min:0},textStyle:{fontName:CURRENT_OPTIONS.font}},height:parseInt(CURRENT_OPTIONS.chart_height||300)};</script>
 
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B3RYND2Z48"></script>
 <script async>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-B3RYND2Z48");</script>
@@ -268,23 +268,15 @@
         portfolio deviates from its intended <b>asset allocation</b>.
     </p>
 
-    <p class="survey-block">
-        The difference between the highest historical value of your portfolio and the current value is
-        called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
-        portfolio value in a short period of time. Having a diversity of assets in your portfolio helps
-        minimize those drawdowns and often results in higher overall performance compared to holding a
-        single class of assets, especially when a <b>rebalancing strategy</b> is employed.
-    </p>
-
     <div class="survey-block">
         <div>
     <!-- Import CSV parser -->
     <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
 
-    <small class="centered">2008 Recession Drawdown</small>
-    <div id="drawdown-recession-chart" class="chart-container"></div>
+    <small class="centered">Effect of Rebalancing a 80/20 Stocks &amp; Bonds Portfolio</small>
+    <div id="rebalance-comparison-chart" class="chart-container"></div>
 
-    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-01-01"&&e.Date<"2017-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={SPY:.8,TLT:.2},t=Object.assign({X:1},a),n=[Object.assign({},t)];for(const a of e.filter(e=>!isNaN(e.SPY)&&!isNaN(e.TLT)&&e.Date<"2018-01-01"))t.SPY=t.SPY*(1+a.SPY),t.TLT=t.TLT*(1+a.TLT),t.X=t.SPY+t.TLT,n.push({Date:new Date(a.Date),X:t.X});const o=Object.assign({X:1},a),i=[Object.assign({},o)];for(const t of e.filter(e=>!isNaN(e.SPY)&&!isNaN(e.TLT)&&e.Date<"2018-01-01"))i.length>2&&i.at(-1).Date.getFullYear()!==i.at(-2).Date.getFullYear()&&(o.SPY=o.X*a.SPY,o.TLT=o.X*a.TLT),o.SPY=o.SPY*(1+t.SPY),o.TLT=o.TLT*(1+t.TLT),o.X=o.SPY+o.TLT,i.push({Date:new Date(t.Date),X:o.X});await google.charts.load("current",{packages:["corechart"]});const s=new google.visualization.DataTable;s.addColumn({label:"Date",type:"date"}),s.addColumn({label:"No Rebalancing",type:"number"}),s.addColumn({label:"Yearly Rebalancing",type:"number"}),s.addRows([...Array(Math.min(n.length,i.length)).keys()].map((e,a)=>[n[a].Date,n[a].X,i[a].X]));const r=document.querySelector("#rebalance-comparison-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(r)),new google.visualization.LineChart(r).draw(s,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:null,legend:{...GOOGLE_CHARTS_CONFIG.legend,position:"in"},hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in"},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,left:0}}),r.style.backgroundImage="none"}();</script>
 </div>
     </div>
 
@@ -359,6 +351,63 @@
     <p class="survey-block">
         Select your desired DCA strategy. For example, if the initial investment was $200 and you
         plan on adding $10 monthly, select a monthly schedule and then enter $10.
+    </p>
+
+    <button class="centered" style="background: none; border: none;" onclick="window.scroll({ top: 0, behavior: 'smooth' })">
+    <img src="../../../static/chevron-up.png" style="height: 24px; width: auto;">
+</button>
+</details>
+            </div>
+
+            <div class="survey-screen animated">
+                <h2 class="survey-header">
+    Investment Risks
+</h2>
+
+<div class="spacer"></div>
+
+<p class="survey-block">
+    Every form of investing has some <b>risks</b> associated it. By educating yourself, you can
+    learn about the difference types of risk and make an informed decision that suits your desired
+    <b>risk profile</b>.
+</p>
+
+<div class="spacer"></div>
+
+<details>
+    <summary class="centered" style="display: list-item">Learn more about investment risks</summary>
+
+    <p class="survey-block">
+        <b>Historical performance</b> is not indicative of <b>future results</b>. Overall economies
+        and markets tend to go up in value, in part due to a (healthy) consistent level of
+        <b>inflation</b> present in all modern market economies. But even broad-market indices go
+        down in value during periods such as <b>recessions</b>.
+    </p>
+
+    <p class="survey-block">
+        The difference between the highest historical value of your portfolio and the current value is
+        called <b>drawdown</b>. Riskier strategies might experience a drawdown of over half of the
+        portfolio value in a short period of time. Having a diversity of assets in your portfolio helps
+        minimize those drawdowns and often results in higher overall performance compared to holding a
+        single class of assets, especially when a <b>rebalancing strategy</b> is employed.
+    </p>
+
+    <div class="survey-block">
+        <div>
+    <!-- Import CSV parser -->
+    <script src="https://unpkg.com/papaparse@latest/papaparse.min.js"></script>
+
+    <small class="centered">2008 Recession Drawdown</small>
+    <div id="drawdown-recession-chart" class="chart-container"></div>
+
+    <script async>!async function(){await new Promise(e=>requestAnimationFrame(()=>requestAnimationFrame(e)));const e=await csv2json("https://finmango.github.io/portfolio-simulator/daily-returns.csv"),a={X:1,H:1,D:0},t=[Object.assign({},a)];for(const o of e.filter(e=>!isNaN(e.VTI)&&e.Date>"2007-01-01"&&e.Date<"2017-01-01"))a.X=a.X*(1+o.VTI),a.H=Math.max(a.H,a.X),a.D=Math.min(0,(a.X-a.H)/a.H),t.push({Date:new Date(o.Date),D:a.D,X:a.X,H:a.H});await google.charts.load("current",{packages:["corechart"]});const o=new google.visualization.DataTable;o.addColumn({label:"Date",type:"date"}),o.addColumn({label:"Drawdown",type:"number"}),o.addRows(t.map(e=>[e.Date,e.D]));const n=document.querySelector("#drawdown-recession-chart");await new Promise(e=>new IntersectionObserver(a=>a.some(e=>e.isIntersecting)?e():void 0).observe(n)),new google.visualization.AreaChart(n).draw(o,{...GOOGLE_CHARTS_CONFIG,curveType:"function",focusTarget:"category",colors:["red"],hAxis:{...GOOGLE_CHARTS_CONFIG.hAxis,format:"yyyy",gridlines:{count:50}},vAxis:{...GOOGLE_CHARTS_CONFIG.vAxis,textPosition:"in",viewWindow:{max:0,min:-1}},interpolateNulls:!0,chartArea:{...GOOGLE_CHARTS_CONFIG.chartArea,top:0,left:0}}),n.style.backgroundImage="none"}();</script>
+</div>
+    </div>
+
+    <p class="survey-block">
+        During a market downturn, the best thing to do is often to do nothing at all. Of course,
+        this is easier said than done but staying disciplined and sticking to your
+        <b>investment objectives</b> is key to long-term success.
     </p>
 
     <button class="centered" style="background: none; border: none;" onclick="window.scroll({ top: 0, behavior: 'smooth' })">
