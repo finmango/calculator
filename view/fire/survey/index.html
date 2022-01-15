@@ -215,18 +215,24 @@
 
         <!-- Navigation element including reference to URL to forward the user after survey -->
         <div id="survey-navigation">
-
-    <div class="navigation-container animated" id="survey-navigation">
-        <div class="centered flex one">
-            <button id="next">NEXT</button>
-            <button onclick="window.location.reload()">START OVER</button>
-        </div>
+    <style>.navigation-header{position:fixed;top:0;left:0;right:0;height:96px;justify-content:center;padding-top:16px;padding-bottom:8px;background-color:var(--theme-background,#fcfcfc)}.navigation-header button{height:100%;margin:0;padding:0;display:block}.navigation-header button.nav{margin-left:5%;margin-right:5%}.navigation-header button.nav img{height:calc(100% - 1.5em)}.navigation-header button.logo img{height:100%}.navigation-header button,.navigation-header button img{width:auto;background:0 0;border:none}</style>
+    <div class="navigation-header flex three">
+        <button id="prev" class="nav">
+            <img src="../../../static/circled-chevron-left.png">
+            <b style="text-transform: uppercase; display: block;">BACK</b>
+        </button>
+        <button id="home" class="logo">
+            <img src="../../../static/logo.png">
+        </button>
+        <button id="next" class="nav">
+            <img src="../../../static/circled-chevron-right.png">
+            <b style="text-transform: uppercase; display: block;">NEXT</b>
+        </button>
     </div>
 
     <script async>
         (function () {
             const rootElement = document.currentScript.parentElement;
-            const navElement = rootElement.querySelector('#survey-navigation');
 
             // Execute all of our code in an async block to allow for top-level await calls and to limit
             // the scope of any variables that are created here.
@@ -256,7 +262,8 @@
                 }
 
                 let screenIdx = 0;
-                const screens = [].filter.call(document.querySelectorAll('div.survey-screen'), el => el !== navElement);
+                const screens = [].slice.call(document.querySelectorAll('div.survey-screen'));
+
                 rootElement.querySelector('#next').addEventListener('click', event => {
                     if (screenIdx + 1 < screens.length) {
 
@@ -293,11 +300,32 @@
                     }
                 });
 
+                rootElement.querySelector('#prev').addEventListener('click', event => {
+                    if (screenIdx > 0) {
+
+                        // Every time the prev button is clicked, move on to the previous question.
+                        const currScreen = screens[screenIdx];
+                        const prevScreen = screens[screenIdx - 1];
+
+                        // Display the next survey screen using a transition animation.
+                        currScreen.classList.remove('survey-screen-visible');
+                        prevScreen.classList.add('survey-screen-visible');
+
+                        // Make sure we don't stay focused on the button
+                        document.querySelector(':focus')?.blur()
+
+                        // Scroll to the top of the screen
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        // Fire event and decrease screen index
+                        screenIdx--;
+                    }
+                });
+
+                rootElement.querySelector('#home').addEventListener('click', event => window.open('https://finmango.org', '_blank'));
+
                 // Animate and display of the first element of the survey.
                 screens[0].classList.add('survey-screen-visible');
-
-                // Animate and display the survey navigation elements.
-                navElement.classList.add('survey-screen-visible');
             })();
         })();
     </script>
