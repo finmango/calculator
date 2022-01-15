@@ -214,7 +214,7 @@
                     await google.charts.load('current', { packages: ['corechart'] });
 
                     // Wait for the historical data to be fully loaded
-                    const symbols = Object.keys(alloc).sort((a, b) => alloc[a] - alloc[b]);
+                    const symbols = Object.keys(alloc).sort((a, b) => alloc[b] - alloc[a]);
                     const reinvest = this.dividend_reinvestment === 'yes';
                     const history = (await (reinvest ? this.daily_returns_reinvested : this.daily_returns))
                         .filter(row => row.Date.localeCompare(this.start_date) >= 0)
