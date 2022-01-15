@@ -88,36 +88,38 @@
         </div>
 
         <!-- Summary simulation statistics -->
-        <table :class="{invisible: error_message !== null}" class="centered" style="display: table; font-size: small">
-            <tbody><tr>
-                <th>Period</th>
-                <th>Annualized</th>
-                <th>Average</th>
-                <th>Max</th>
-                <th>Min</th>
-            </tr>
-            <tr v-show="performance['1 Year'].avg">
-                <td>1 Year</td>
-                <td>{{ Formatter.percent(performance['1 Year'].annualized, true) }}</td>
-                <td>{{ Formatter.percent(performance['1 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(performance['1 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(performance['1 Year'].min, true) }}</td>
-            </tr>
-            <tr v-show="performance['5 Year'].avg">
-                <td>5 Years</td>
-                <td>{{ Formatter.percent(performance['5 Year'].annualized, true) }}</td>
-                <td>{{ Formatter.percent(performance['5 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(performance['5 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(performance['5 Year'].min, true) }}</td>
-            </tr>
-            <tr v-show="performance['10 Year'].avg">
-                <td>10 Years</td>
-                <td>{{ Formatter.percent(performance['10 Year'].annualized, true) }}</td>
-                <td>{{ Formatter.percent(performance['10 Year'].avg, true) }}</td>
-                <td>{{ Formatter.percent(performance['10 Year'].max, true) }}</td>
-                <td>{{ Formatter.percent(performance['10 Year'].min, true) }}</td>
-            </tr>
-        </tbody></table>
+        <div class="flex one" style="overflow-x: auto;">
+            <table :class="{invisible: error_message !== null}" style="font-size: small;">
+                <tbody><tr>
+                    <th>Period</th>
+                    <th>Annualized</th>
+                    <th>Average</th>
+                    <th>Max</th>
+                    <th>Min</th>
+                </tr>
+                <tr v-show="performance['1 Year'].avg">
+                    <td>1 Year</td>
+                    <td>{{ Formatter.percent(performance['1 Year'].annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year'].avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year'].max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year'].min, true) }}</td>
+                </tr>
+                <tr v-show="performance['5 Year'].avg">
+                    <td>5 Years</td>
+                    <td>{{ Formatter.percent(performance['5 Year'].annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year'].avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year'].max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year'].min, true) }}</td>
+                </tr>
+                <tr v-show="performance['10 Year'].avg">
+                    <td>10 Years</td>
+                    <td>{{ Formatter.percent(performance['10 Year'].annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year'].avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year'].max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year'].min, true) }}</td>
+                </tr>
+            </tbody></table>
+        </div>
 
         <div class="flex one two-600">
 
