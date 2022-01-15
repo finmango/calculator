@@ -5,7 +5,7 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 96px;
+            height: 82px;
             justify-content: center;
             padding-top: 16px;
             padding-bottom: 8px;
@@ -19,17 +19,27 @@
             display: block;
         }
 
-        .navigation-header button.nav {
-            margin-left: 5%;
-            margin-right: 5%;
+        .navigation-header button#prev {
+            margin-right: 8%;
+        }
+
+        .navigation-header button#next {
+            margin-left: 8%;
         }
 
         .navigation-header button.nav img {
+            display: block;
             height: calc(100% - 1.5em);
+        }
+
+        .navigation-header button.nav b {
+            display: block;
+            text-transform: uppercase;
         }
 
         .navigation-header button.logo img {
             height: 100%;
+            padding-bottom: 4px;
         }
 
         .navigation-header button,
@@ -41,15 +51,15 @@
     </style>
     <div class="navigation-header flex three">
         <button id="prev" class="nav">
-            <img src="{{wwwroot}}/static/circled-chevron-left.png" />
-            <b style="text-transform: uppercase; display: block;">BACK</b>
+            <img class="centered" src="{{wwwroot}}/static/circled-chevron-left.png" />
+            <b>BACK</b>
         </button>
         <button id="home" class="logo">
             <img src="{{wwwroot}}/static/logo.png" />
         </button>
         <button id="next" class="nav">
-            <img src="{{wwwroot}}/static/circled-chevron-right.png" />
-            <b style="text-transform: uppercase; display: block;">NEXT</b>
+            <img class="centered" src="{{wwwroot}}/static/circled-chevron-right.png" />
+            <b>NEXT</b>
         </button>
     </div>
 
