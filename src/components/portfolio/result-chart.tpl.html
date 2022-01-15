@@ -67,11 +67,11 @@
             <div class="fourth" style="padding-top: 24px">
                 <label for="target_allocations">Target Allocations</label>
                 <div id="target_allocations">
-                    <div v-for="(value, symbol) in target_allocations">
+                    <div v-for="symbol in symbols">
                         <label for="{{ symbol }}">
-                            <small>{{ target_allocations[symbol] }}% {{ symbol }}</small>
+                            <small>{{ allocations_percent[symbol] }}% {{ symbol }}</small>
                         </label>
-                        <input @input="temp()" type="range" v-model.number="target_allocations[symbol]" min="0"
+                        <input @input="temp()" type="range" v-model.number="allocations_percent[symbol]" min="0"
                             max="100" step="5" style="margin-top: -10px; padding: 0;">
                     </div>
                 </div>
@@ -128,7 +128,9 @@
             el: '#portfolio-calculator-data',
             data: {
                 error_message: null,
-                target_allocations: {},
+                symbols: ['SPY', 'TLT', 'VTI', 'VXUS', 'BND', 'UPRO', 'TMF', 'CASH'],
+                target_allocations: 'SPY:100',
+                allocations_percent: {},
                 initial_investment: 1,
                 rebalance_schedule: 'yearly',
                 schedules: ['Never', 'Yearly', 'Quarterly', 'Monthly', 'Daily'],
@@ -144,14 +146,14 @@
                 Formatter: Formatter,
             },
             computed: {
-                dca_ratio: function () { return this.dca_amount / this.initial_investment }
+                dca_ratio: function () { return this.dca_amount / this.initial_investment },
             },
             watch: {
             },
             methods: {
                 alloc: function () {
                     const alloc = {};
-                    for (const [symbol, val] of Object.entries(data.target_allocations)) {
+                    for (const [symbol, val] of Object.entries(this.allocations_percent)) {
                         if (val > 0) alloc[symbol] = val / 100;
                     }
                     return alloc;
@@ -159,9 +161,9 @@
                 temp: function () {
                     if (this.debouncer1) clearTimeout(this.debouncer1);
                     this.debouncer1 = setTimeout(() => {
-                        const tmp = this.target_allocations;
-                        this.target_allocations = null;
-                        this.target_allocations = tmp;
+                        const tmp = this.allocations_percent;
+                        this.allocations_percent = null;
+                        this.allocations_percent = tmp;
                     }, 10);
                 },
                 meetsSchedule: function (returns, schedule) {
@@ -288,7 +290,7 @@
                     console.log(JSON.stringify(this.performance));
 
                     console.log(returns);
-                    const portfolioStr = symbols.map(symbol => `${this.target_allocations[symbol]}% ${symbol}`).join(' · ');
+                    const portfolioStr = symbols.map(symbol => `${this.allocations_percent[symbol]}% ${symbol}`).join(' · ');
 
                     const perfTable = new google.visualization.DataTable();
                     perfTable.addColumn({ label: 'Date', type: 'date' });
@@ -334,19 +336,21 @@
 
         // Load data from URL query parameters into the view model
         const data = DataHelper.getQueryData(window.location);
-        data.target_allocations = (data.target_allocations || 'SPY:100').split(',').reduce((agg, keyval) => {
+
+        // Process the target allocations from query parameters
+        data.allocations_percent = data.target_allocations.split(',').reduce((agg, keyval) => {
             const [key, val] = keyval.split(':', 2);
             return Object.assign(agg, { [key]: parseInt(val) || 0 });
         }, {});
         Object.assign(app, data);
 
+        // Fill empty allocations with zero
+        app.symbols.forEach(symbol => app.allocations_percent[symbol] = app.allocations_percent[symbol] || 0);
+
         // Load data from remote JSON file
         const urlBase = 'https://finmango.github.io/portfolio-simulator';
         app.daily_returns = csv2json(`${urlBase}/daily-returns.csv`);
         app.daily_returns_reinvested = csv2json(`${urlBase}/daily-returns-with-dividends-reinvested.csv`);
-
-        app.daily_returns.then(rows => Object.keys(rows[0]).filter(symbol => symbol !== 'Date').forEach(symbol =>
-            data.target_allocations[symbol] = data.target_allocations[symbol] || 0));
 
         // Ask VueJS to reload anytime any of the data changes
         Object.keys(data).forEach(key => app.$watch(key, function () { this.update() }, { deep: true }));
