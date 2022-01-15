@@ -77,6 +77,14 @@ gulp.task('build:html', function () {
 
         // Add variables from context
         { env: env, year: new Date().getFullYear() },
+
+        // Add the theme variables
+        {
+            'theme-primary': pckg.vars.theme.primary,
+            'theme-accent': pckg.vars.theme.accent,
+            'theme-background': pckg.vars.theme.background,
+            'theme-text-on-background': pckg.vars.theme['text-on-background'],
+        },
     )
 
     // Perform rendering
