@@ -7,7 +7,7 @@
     "theme": {
       "primary": "#FB780F",
       "accent": "#FB780F",
-      "background": "transparent",
+      "background": "#FCFCFC",
       "text-on-background": "#000000"
     },
     "fire-name": "FinMango FIRE 🔥 Calculator",

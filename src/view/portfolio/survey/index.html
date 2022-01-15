@@ -6,14 +6,11 @@
     data-vars='{"name": "{{portfolio-name}}", "description": "{{portfolio-description}}"}'></script>
 
 <body>
-    <!-- Page header-->
-    <script data-include src="../../../components/page-header.tpl.html"></script>
-
     <!-- Main element -->
     <main class="single-column-wide" style="margin-top: auto; margin-bottom: auto;">
 
         <!-- Survey elements in the order they will be displayed -->
-        <div id="survey-root">
+        <div id="survey-root" style="padding-top: 128px">
 
             <div class="survey-screen animated">
                 <script data-include src="../../../components/portfolio/portfolio-building.tpl.html"></script>
@@ -36,10 +33,6 @@
             </div>
 
         </div>
-
-        <!-- Generous space between survey blocks and the navigation buttons -->
-        <div class="spacer"></div>
-        <div class="spacer"></div>
 
         <!-- Navigation element including reference to URL to forward the user after survey -->
         <script src="../../../components/survey/navigation.tpl.html" data-include
