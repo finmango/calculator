@@ -119,26 +119,26 @@
                     <th>Max</th>
                     <th>Min</th>
                 </tr>
-                <tr v-show="performance['1 Year'].avg">
+                <tr v-show="'1 Year' in performance">
                     <td>1 Year</td>
-                    <td>{{ Formatter.percent(performance['1 Year'].annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year'].avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year'].max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year'].min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.min, true) }}</td>
                 </tr>
-                <tr v-show="performance['5 Year'].avg">
+                <tr v-show="'5 Year' in performance">
                     <td>5 Years</td>
-                    <td>{{ Formatter.percent(performance['5 Year'].annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year'].avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year'].max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year'].min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.min, true) }}</td>
                 </tr>
-                <tr v-show="performance['10 Year'].avg">
+                <tr v-show="'10 Year' in performance">
                     <td>10 Years</td>
-                    <td>{{ Formatter.percent(performance['10 Year'].annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year'].avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year'].max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year'].min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.min, true) }}</td>
                 </tr>
             </table>
         </div>
@@ -343,6 +343,7 @@
                         });
                     }
 
+                    this.performance = {};
                     Object.assign(this.performance, C);
                     this.performance['returns'] = C.total - 1;
                     this.performance['returns_minus_dca'] = C.total_minus_dca - 1;
@@ -350,7 +351,7 @@
                     this.performance['end_date'] = returns.at(-1).date;
                     this.performance['max_drawdown'] = Math.min(...returns.map(row => row.drawdown));
 
-                    Object.keys(rolling).forEach(year => {
+                    Object.keys(rolling).filter(year => rolling[year].length > 0).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
                         const sum = rolling[year].reduce((total, val) => total + val, 0);
 
