@@ -2,7 +2,9 @@ class Formatter {
 
     static price(value, signed = false) {
         value = Number(value);
-        const str = value.toLocaleString(undefined, { maximumFractionDigits: 2 }).replace('-', '');
+        const localeOptions = { maximumFractionDigits: 2 };
+        if (value !== Math.round(value)) localeOptions.minimumFractionDigits = 2;
+        const str = value.toLocaleString(undefined, localeOptions).replace('-', '');
         const prefix = (value < 0 ? '-' : (signed ? '+' : '')) + '$';
         return prefix + str;
     }

@@ -97,15 +97,14 @@
                     With your investment of <b class="green">{{ Formatter.price(initial_investment) }}</b> from
                     <b>{{ performance.start_date?.toLocaleDateString() }}</b> until
                     <b>{{ performance.end_date?.toLocaleDateString() }}</b> you would have made an additional
-                    <b :class="[performance.returns > 0 ? 'green' : 'red']">
-                        {{ Formatter.price(initial_investment * (performance.returns - performance.dca_total)) }}</b>,
-                    after excluding contributions via dollar-cost averaging. The maximum
-                    drawdown in the simulated strategy was
+                    <b :class="[performance.returns_minus_dca > 0 ? 'green' : 'red']">
+                        {{ Formatter.price(initial_investment * performance.returns_minus_dca) }}</b>,
+                    after excluding <b>{{ performance.dca_count }}</b> additional contribution(s)
+                    via the selected dollar-cost averaging strategy totaling
+                    <b class="green">{{ Formatter.price(dca_amount * performance.dca_count) }}</b>.
+                    The maximum drawdown in the simulated strategy was
                     <b class="red">{{ Formatter.percent(performance.max_drawdown, true) }}</b>. The
-                    portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s) and
-                    <b>{{ performance.dca_count }}</b> additional contribution(s) totaling
-                    <b class="green">{{ Formatter.price(dca_amount * performance.dca_count) }}</b>
-                    were made as part of the selected dollar-cost averaging strategy.
+                    portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s).
                 </p>
             </div>
         </div>
@@ -249,11 +248,11 @@
                     if (schedule === 'never' || returns.length < 2)
                         return false;
                     if (schedule === 'yearly')
-                        return tokenizeDate(returns.at(-1).Date)[0] !== tokenizeDate(returns.at(-2).Date)[0];
+                        return tokenizeDate(returns.at(-1).date)[0] !== tokenizeDate(returns.at(-2).date)[0];
                     if (schedule === 'quarterly')
-                        return quarter(tokenizeDate(returns.at(-1).Date)[1]) !== quarter(tokenizeDate(returns.at(-2).Date)[1]);
+                        return quarter(tokenizeDate(returns.at(-1).date)[1]) !== quarter(tokenizeDate(returns.at(-2).date)[1]);
                     if (schedule === 'monthly')
-                        return tokenizeDate(returns.at(-1).Date)[1] !== tokenizeDate(returns.at(-2).Date)[1];
+                        return tokenizeDate(returns.at(-1).date)[1] !== tokenizeDate(returns.at(-2).date)[1];
                     if (schedule === 'daily')
                         return true;
                     if (schedule.endsWith('% threshold')) {
@@ -305,61 +304,62 @@
                     }
 
                     const returns = [];
-                    const rolling = [1, 5, 10].reduce((agg, n) => ({ [n]: { returns: [], drawdowns: [] }, ...agg }), {});
-                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [], 'Rebalances': 0, 'DCA': 0 };
-                    const C = Object.assign({ Total: 1, Max: 1 }, alloc);
+                    const rolling = [1, 5, 10].reduce((agg, n) => ({ ...agg, [n]: [] }), {});
+                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [] };
+                    const C = Object.assign({ total: 1, max: 1, dca_count: 0, dca_total: 0, rebalance_count: 0 }, alloc);
                     for (const x of history) {
-                        C.Total = symbols.reduce((total, symbol) => total + C[symbol], 0);
-                        C.Max = Math.max(C.Max, C.Total);
-                        C.Drawdown = Math.min(0, (C.Total - C.Max) / C.Max);
+                        C.total = symbols.reduce((total, symbol) => total + C[symbol], 0);
+                        C.total_minus_dca = C.total - C.dca_total;
+                        C.max = Math.max(C.max, C.total);
+                        C.drawdown = Math.min(0, (C.total - C.max) / C.max);
                         symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
-                        returns.push(Object.assign({ Date: new Date(x.Date) }, C));
+                        returns.push(Object.assign({ date: new Date(x.Date) }, C));
 
                         // DCA if schedule requests it
                         if (this.meetsSchedule(returns, this.dca_schedule.toLowerCase())) {
-                            performance.DCA++;
+                            C.dca_count++;
+                            C.dca_total += this.dca_ratio;
                             Object.entries(alloc).forEach(([symbol, weight]) =>
                                 C[symbol] += this.dca_ratio / symbols.length);
                         }
 
                         // Rebalance the portfolio if needed
                         if (this.meetsSchedule(returns, this.rebalance_schedule.toLowerCase())) {
-                            performance.Rebalances++;
+                            C.rebalance_count++;
                             const total = symbols.reduce((total, symbol) => total + C[symbol], 0);
                             Object.entries(alloc).forEach(([symbol, weight]) => C[symbol] = total * weight);
                         }
 
                         // Keep track of rolling performance
                         Object.keys(rolling).forEach(year => {
-                            const days = year * 365;
+                            const days = year * 252;
                             if (returns.length > days) {
                                 const prev = returns.at(-days);
-                                const diff = C.Total - prev.Total;
-                                const ratio = diff / prev.Total;
-                                rolling[year].returns.push(ratio);
+                                const diff = C.total_minus_dca - prev.total_minus_dca;
+                                const ratio = diff / prev.total_minus_dca;
+                                rolling[year].push(ratio);
                                 // rolling[year].drawdowns.push(Math.min(...returns.slice(-days).map(row => row.Drawdown)));
                             }
                         });
                     }
 
-                    this.performance['returns'] = Math.round((C.Total - 1) * 100) / 100;
-                    this.performance['dca_count'] = performance['DCA'];
-                    this.performance['dca_total'] = performance['DCA'] * this.dca_ratio;
-                    this.performance['rebalance_count'] = performance['Rebalances'];
-                    this.performance['start_date'] = returns[0]['Date'];
-                    this.performance['end_date'] = returns.at(-1)['Date'];
-                    this.performance['max_drawdown'] = Math.min(...returns.map(row => row['Drawdown']));
+                    Object.assign(this.performance, C);
+                    this.performance['returns'] = C.total - 1;
+                    this.performance['returns_minus_dca'] = C.total_minus_dca - 1;
+                    this.performance['start_date'] = returns[0].date;
+                    this.performance['end_date'] = returns.at(-1).date;
+                    this.performance['max_drawdown'] = Math.min(...returns.map(row => row.drawdown));
 
                     Object.keys(rolling).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
-                        const sum = rolling[year].returns.reduce((total, val) => total + val, 0);
+                        const sum = rolling[year].reduce((total, val) => total + val, 0);
 
                         const key = `${year} Year`;
                         this.performance[key] = {};
-                        this.performance[key].avg = approx(sum / rolling[year].returns.length);
-                        this.performance[key].max = approx(Math.max(...rolling[year].returns));
-                        this.performance[key].min = approx(Math.min(...rolling[year].returns));
-                        this.performance[key].annualized = approx(sum / rolling[year].returns.length / year);
+                        this.performance[key].avg = approx(sum / rolling[year].length);
+                        this.performance[key].max = approx(Math.max(...rolling[year]));
+                        this.performance[key].min = approx(Math.min(...rolling[year]));
+                        this.performance[key].annualized = approx(sum / rolling[year].length / year);
                     });
 
                     this.performance = { ...this.performance };
@@ -371,12 +371,12 @@
                     const perfTable = new google.visualization.DataTable();
                     perfTable.addColumn({ label: 'Date', type: 'date' });
                     symbols.forEach(symbol => perfTable.addColumn({ label: symbol, type: 'number' }));
-                    perfTable.addRows(returns.map(row => ['Date'].concat(symbols).map(symbol => row[symbol])));
+                    perfTable.addRows(returns.map(row => ['date'].concat(symbols).map(symbol => row[symbol])));
 
                     const drawdownTable = new google.visualization.DataTable();
                     drawdownTable.addColumn({ label: 'Date', type: 'date' });
                     drawdownTable.addColumn({ label: 'Drawdown', type: 'number' });
-                    drawdownTable.addRows(returns.map(row => [row['Date'], row['Drawdown']]));
+                    drawdownTable.addRows(returns.map(row => [row.date, row.drawdown]));
 
                     const perfElem = rootElement.querySelector('#perf-chart-container');
                     new google.visualization.AreaChart(perfElem).draw(perfTable, Object.assign({}, GOOGLE_CHARTS_CONFIG, {
