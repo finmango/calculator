@@ -108,7 +108,9 @@
     <div>
     <label for="start_date">
         Start Date
-        <small>Start date for the simulation period.</small>
+        <small>
+            Start date for the simulation period. Ignored if the selected date is out of the range of available data.
+        </small>
     </label>
     <input id="start_date" type="date" v-model="start_date" min="1970-01-01" value="1995-01-01">
 </div>
@@ -116,7 +118,9 @@
 <div>
     <label for="end_date">
         End Date
-        <small>End date for the simulation period.</small>
+        <small>
+            End date for the simulation period. Ignored if the selected date is out of the range of available data.
+        </small>
     </label>
     <input id="end_date" type="date" v-model="end_date" min="1970-01-01" value="2022-01-01">
 </div>
@@ -125,7 +129,7 @@
 <div class="spacer"></div>
 
 <details>
-    <summary class="centered" style="display: list-item;">Learn more the power of time</summary>
+    <summary class="centered" style="display: list-item;">Learn more about the power of time</summary>
 
     <p class="survey-block">
         It's often said that <b>time in the market</b> always beats <b>timing the market</b>. What this

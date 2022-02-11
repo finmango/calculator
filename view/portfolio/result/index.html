@@ -266,20 +266,40 @@
 
             <form class="flex one two-600">
                 <div>
-    <label for="rebalance_schedule">
-        Rebalancing Schedule
-        <br>
+    <label for="initial_investment">
+        Initial Investment
+        <small>Amount of cash used for the initial allocation of the portfolio.</small>
+    </label>
+    <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
+</div>
+                <div>
+    <label for="dividend_reinvestment">
+        Reinvest Dividends
+        <small>Whether dividends should be automatically reinvested into your portfolio allocations.</small>
+    </label>
+    <select id="dividend_reinvestment" v-model="dividend_reinvestment">
+        <option value="yes" selected>Yes</option>
+        <option value="no">No</option>
+    </select>
+</div>
+                <div>
+    <label for="start_date">
+        Start Date
         <small>
-            How often to simulate portfolio rebalancing toward the original asset allocation.
+            Start date for the simulation period. Ignored if the selected date is out of the range of available data.
         </small>
     </label>
-    <select id="rebalance_schedule" v-model="rebalance_schedule">
-        <option value="never">Never</option>
-        <option value="yearly">Yearly</option>
-        <option value="quarterly" selected>Quarterly</option>
-        <option value="monthly">Monthly</option>
-        <option value="daily">Daily</option>
-    </select>
+    <input id="start_date" type="date" v-model="start_date" min="1970-01-01" value="1995-01-01">
+</div>
+
+<div>
+    <label for="end_date">
+        End Date
+        <small>
+            End date for the simulation period. Ignored if the selected date is out of the range of available data.
+        </small>
+    </label>
+    <input id="end_date" type="date" v-model="end_date" min="1970-01-01" value="2022-01-01">
 </div>
                 <div>
     <label for="dca_schedule">
@@ -302,36 +322,20 @@
     <input id="dca_amount" v-model="dca_amount" type="number" pattern="/d+" min="0" value="0">
 </div>
                 <div>
-    <label for="dividend_reinvestment">
-        Reinvest Dividends
-        <small>Whether dividends should be automatically reinvested into your portfolio allocations.</small>
+    <label for="rebalance_schedule">
+        Rebalancing Schedule
+        <br>
+        <small>
+            How often to simulate portfolio rebalancing toward the original asset allocation.
+        </small>
     </label>
-    <select id="dividend_reinvestment" v-model="dividend_reinvestment">
-        <option value="yes" selected>Yes</option>
-        <option value="no">No</option>
+    <select id="rebalance_schedule" v-model="rebalance_schedule">
+        <option value="never">Never</option>
+        <option value="yearly">Yearly</option>
+        <option value="quarterly" selected>Quarterly</option>
+        <option value="monthly">Monthly</option>
+        <option value="daily">Daily</option>
     </select>
-</div>
-                <div>
-    <label for="initial_investment">
-        Initial Investment
-        <small>Amount of cash used for the initial allocation of the portfolio.</small>
-    </label>
-    <input id="initial_investment" v-model="initial_investment" type="number" pattern="/d*" min="1" value="100">
-</div>
-                <div>
-    <label for="start_date">
-        Start Date
-        <small>Start date for the simulation period.</small>
-    </label>
-    <input id="start_date" type="date" v-model="start_date" min="1970-01-01" value="1995-01-01">
-</div>
-
-<div>
-    <label for="end_date">
-        End Date
-        <small>End date for the simulation period.</small>
-    </label>
-    <input id="end_date" type="date" v-model="end_date" min="1970-01-01" value="2022-01-01">
 </div>
 
             </form>
