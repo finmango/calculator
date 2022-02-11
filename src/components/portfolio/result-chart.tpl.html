@@ -118,7 +118,7 @@
                     <b class="green">{{ Formatter.price(total_invested) }}</b>.
                     Your investment portfolio balance was
                     <b :class="[performance.returns > 0 ? 'green' : 'red']">
-                        {{ Formatter.price(initial_investment * performance.returns) }}</b> on
+                        {{ Formatter.price(final_balance) }}</b> on
                     <b>{{ performance.end_date?.toLocaleDateString() }}</b>. The
                     portfolio was rebalanced <b>{{ performance.rebalance_count }}</b> time(s).
                 </p>
@@ -257,6 +257,7 @@
             },
             computed: {
                 total_invested: function () { return Number(this.initial_investment) + this.dca_amount * this.performance.dca_count },
+                final_balance: function () { return Number(this.initial_investment) + this.initial_investment * this.performance.returns },
                 dca_ratio: function () { return this.dca_amount / this.initial_investment },
             },
             watch: {
@@ -387,7 +388,7 @@
                     this.performance = {};
                     Object.assign(this.performance, C);
                     this.performance['returns'] = C.total - 1;
-                    this.performance['returns_annualized'] = (C.total - 1) / 252;
+                    this.performance['returns_annualized'] = 252 * (C.total - 1) / returns.length;
                     this.performance['returns_minus_dca'] = C.total_minus_dca - 1;
                     this.performance['start_date'] = returns[0].date;
                     this.performance['end_date'] = returns.at(-1).date;
