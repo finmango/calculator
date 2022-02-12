@@ -348,11 +348,6 @@
                     const rolling = [1, 5, 10].reduce((agg, n) => ({ ...agg, [n]: [] }), {});
                     const C = Object.assign({ total: 1, total_minus_dca: 1, max: 1, dca_count: 0, dca_total: 0, rebalance_count: 0 }, alloc);
                     for (const x of history) {
-                        C.total = symbols.reduce((total, symbol) => total + C[symbol], 0);
-                        C.total_minus_dca = C.total - C.dca_total;
-                        C.max = Math.max(C.max, C.total);
-                        C.drawdown = Math.min(0, (C.total - C.max) / C.max);
-                        symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
 
                         // Compute daily returns for whole portfolio as a weighted sum of component returns
                         const alloc_total = symbols.map(symbol => C[symbol]).reduce((total, a) => total + a, 0);
@@ -360,6 +355,16 @@
                             .map(symbol => x[symbol] * C[symbol] / alloc_total)
                             .reduce((total, val) => total + val, 0);
 
+                        // Compute daily returns for each symbol individually
+                        symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
+
+                        // Update simulated returns and keep track of DCA amounts and drawdown
+                        C.total = symbols.reduce((total, symbol) => total + C[symbol], 0);
+                        C.total_minus_dca = C.total - C.dca_total;
+                        C.max = Math.max(C.max, C.total);
+                        C.drawdown = Math.min(0, (C.total - C.max) / C.max);
+
+                        // Add record to list
                         returns.push(Object.assign({ date: new Date(x.Date) }, C));
 
                         // Keep track of rolling performance
@@ -408,7 +413,7 @@
                         this.performance['returns_normalized'] *= 1 + row.daily_returns;
                     }
                     this.performance['returns_normalized'] -= 1;
-                    this.performance['returns_annualized'] = this.performance['returns_minus_dca'] / (returns.length / 252.75);
+                    this.performance['returns_annualized'] = this.performance['returns_normalized'] / (returns.length / 252.75);
 
                     Object.keys(rolling).filter(year => rolling[year].length > 0).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
