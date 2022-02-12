@@ -407,7 +407,8 @@
                     for (const row of returns) {
                         this.performance['returns_normalized'] *= 1 + row.daily_returns;
                     }
-                    this.performance['returns_annualized'] = this.performance['returns_normalized'] / (returns.length / 252.75);
+                    this.performance['returns_normalized'] -= 1;
+                    this.performance['returns_annualized'] = this.performance['returns_minus_dca'] / (returns.length / 252.75);
 
                     Object.keys(rolling).filter(year => rolling[year].length > 0).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
