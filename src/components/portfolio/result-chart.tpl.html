@@ -351,10 +351,10 @@
                         symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
                         returns.push(Object.assign({ date: new Date(x.Date) }, C));
 
-                        // Compute daily returns for whole portfolio
-                        const alloc_max = Math.max(...symbols.map(symbol => C[symbol]));
+                        // Compute daily returns for whole portfolio as a weighted sum of allocation
+                        const alloc_total = symbols.map(symbol => C[symbol]).reduce((total, a) => total + a, 0);
                         C.daily_returns = symbols
-                            .map(symbol => x[symbol] * C[symbol] / alloc_max)
+                            .map(symbol => C[symbol] * x[symbol] / alloc_total)
                             .reduce((total, val) => total + val, 0);
 
                         // Keep track of rolling performance
@@ -364,7 +364,7 @@
                                 const subset = returns.slice(-days);
                                 rolling[year].push({
                                     returns: subset.reduce((total, row) => total * (1 + row.daily_returns), 1),
-                                    drawdown: Math.min(0, (subset.at(-1).total - subset.at(-1).max) / subset.at(-1).max),
+                                    drawdown: Math.min(0, ...subset.map(row => (row.total - row.max) / row.max)),
                                 });
                             }
                         });
