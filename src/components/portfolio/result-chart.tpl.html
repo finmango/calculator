@@ -156,43 +156,48 @@
             <table :class="{invisible: error_message !== null}" style="font-size: small;">
                 <tr>
                     <th>Period Duration*</th>
-                    <th>Annualized Return</th>
-                    <th>Max Drawdown</th>
-                    <th>Average Cumulative Return</th>
-                    <th>Max Cumulative Return</th>
-                    <th>Min Cumulative Return</th>
+                    <th>Average Annualized Return</th>
+                    <th>Largest Annualized Return</th>
+                    <th>Smallest Annualized Return</th>
+                    <th>Average Max Drawdown</th>
+                    <th>Largest Max Drawdown</th>
+                    <th>Smallest Max Drawdown</th>
                 </tr>
                 <tr v-show="'1 Year' in performance">
                     <td>1 Year</td>
-                    <td>{{ Formatter.percent(performance['1 Year']?.annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year']?.drawdown, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year']?.avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year']?.max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['1 Year']?.min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.ret_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.ret_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.ret_min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.drw_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.drw_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['1 Year']?.drw_min, true) }}</td>
                 </tr>
                 <tr v-show="'5 Year' in performance">
                     <td>5 Years</td>
-                    <td>{{ Formatter.percent(performance['5 Year']?.annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year']?.drawdown, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year']?.avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year']?.max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['5 Year']?.min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.ret_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.ret_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.ret_min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.drw_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.drw_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['5 Year']?.drw_min, true) }}</td>
                 </tr>
                 <tr v-show="'10 Year' in performance">
                     <td>10 Years</td>
-                    <td>{{ Formatter.percent(performance['10 Year']?.annualized, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year']?.drawdown, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year']?.avg, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year']?.max, true) }}</td>
-                    <td>{{ Formatter.percent(performance['10 Year']?.min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.ret_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.ret_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.ret_min, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.drw_avg, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.drw_max, true) }}</td>
+                    <td>{{ Formatter.percent(performance['10 Year']?.drw_min, true) }}</td>
                 </tr>
                 <tr>
                     <td>Full Simulation</td>
                     <td>{{ Formatter.percent(performance.returns_annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance.returns_annualized, true) }}</td>
+                    <td>{{ Formatter.percent(performance.returns_annualized, true) }}</td>
                     <td>{{ Formatter.percent(performance.max_drawdown, true) }}</td>
-                    <td>{{ Formatter.percent(performance.returns, true) }}</td>
-                    <td>{{ Formatter.percent(performance.returns, true) }}</td>
-                    <td>{{ Formatter.percent(performance.returns, true) }}</td>
+                    <td>{{ Formatter.percent(performance.max_drawdown, true) }}</td>
+                    <td>{{ Formatter.percent(performance.max_drawdown, true) }}</td>
                 </tr>
             </table>
             <small style="margin-top: 8px">
@@ -341,7 +346,6 @@
 
                     const returns = [];
                     const rolling = [1, 5, 10].reduce((agg, n) => ({ ...agg, [n]: [] }), {});
-                    const performance = { '1 Year': [], '5 Year': [], '10 Year': [] };
                     const C = Object.assign({ total: 1, total_minus_dca: 1, max: 1, dca_count: 0, dca_total: 0, rebalance_count: 0 }, alloc);
                     for (const x of history) {
                         C.total = symbols.reduce((total, symbol) => total + C[symbol], 0);
@@ -349,23 +353,29 @@
                         C.max = Math.max(C.max, C.total);
                         C.drawdown = Math.min(0, (C.total - C.max) / C.max);
                         symbols.forEach(symbol => C[symbol] *= (1 + x[symbol]));
-                        returns.push(Object.assign({ date: new Date(x.Date) }, C));
 
-                        // Compute daily returns for whole portfolio as a weighted sum of allocation
+                        // Compute daily returns for whole portfolio as a weighted sum of component returns
                         const alloc_total = symbols.map(symbol => C[symbol]).reduce((total, a) => total + a, 0);
                         C.daily_returns = symbols
-                            .map(symbol => C[symbol] * x[symbol] / alloc_total)
+                            .map(symbol => x[symbol] * C[symbol] / alloc_total)
                             .reduce((total, val) => total + val, 0);
+
+                        returns.push(Object.assign({ date: new Date(x.Date) }, C));
 
                         // Keep track of rolling performance
                         Object.keys(rolling).forEach(year => {
-                            const days = year * 252;
+                            const days = Math.ceil(year * 252.75);
                             if (returns.length > days) {
-                                const subset = returns.slice(-days);
-                                rolling[year].push({
-                                    returns: subset.reduce((total, row) => total * (1 + row.daily_returns), 1),
-                                    drawdown: Math.min(0, ...subset.map(row => (row.total - row.max) / row.max)),
-                                });
+                                let curr = 1;
+                                let drawdown = 0;
+                                let runningMax = 0;
+                                for (const row of returns.slice(-days)) {
+                                    curr *= 1 + row.daily_returns;
+                                    runningMax = Math.max(runningMax, curr);
+                                    drawdown = Math.min(drawdown, (curr - runningMax) / runningMax);
+                                }
+
+                                rolling[year].push({ returns: curr - 1, drawdown: drawdown });
                             }
                         });
 
@@ -388,24 +398,32 @@
                     this.performance = {};
                     Object.assign(this.performance, C);
                     this.performance['returns'] = C.total - 1;
-                    this.performance['returns_annualized'] = 252 * (C.total - 1) / returns.length;
                     this.performance['returns_minus_dca'] = C.total_minus_dca - 1;
                     this.performance['start_date'] = returns[0].date;
                     this.performance['end_date'] = returns.at(-1).date;
                     this.performance['max_drawdown'] = Math.min(...returns.map(row => row.drawdown));
 
+                    this.performance['returns_normalized'] = 1;
+                    for (const row of returns) {
+                        this.performance['returns_normalized'] *= 1 + row.daily_returns;
+                    }
+                    this.performance['returns_annualized'] = this.performance['returns_normalized'] / (returns.length / 252.75);
+
                     Object.keys(rolling).filter(year => rolling[year].length > 0).forEach(year => {
                         const approx = x => Math.round(x * 1000) / 1000;
-                        const rets = rolling[year].map(row => row.returns);
-                        const sum = rets.reduce((total, val) => total + val - 1, 0);
+                        const ary_returns = rolling[year].map(row => row.returns / year);
+                        const ary_drawdown = rolling[year].map(row => row.drawdown / year);
+                        const sum_returns = ary_returns.reduce((total, val) => total + val, 0);
+                        const sum_drawdown = ary_drawdown.reduce((total, val) => total + val, 0);
 
                         const key = `${year} Year`;
                         this.performance[key] = {};
-                        this.performance[key].avg = approx(sum / rets.length);
-                        this.performance[key].max = approx(Math.max(...rets) - 1);
-                        this.performance[key].min = approx(Math.min(...rets) - 1);
-                        this.performance[key].drawdown = approx(Math.min(...rolling[year].map(row => row.drawdown)));
-                        this.performance[key].annualized = approx(sum / rets.length / year);
+                        this.performance[key].ret_avg = approx(sum_returns / ary_returns.length);
+                        this.performance[key].ret_max = approx(Math.max(...ary_returns));
+                        this.performance[key].ret_min = approx(Math.min(...ary_returns));
+                        this.performance[key].drw_avg = approx(sum_drawdown / ary_drawdown.length);
+                        this.performance[key].drw_max = approx(Math.min(...ary_drawdown));
+                        this.performance[key].drw_min = approx(Math.max(...ary_drawdown));
                     });
 
                     this.performance = { ...this.performance };
