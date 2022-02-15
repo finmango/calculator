@@ -322,8 +322,9 @@
 
                     // Early exit: allocations do not amount to 100%
                     const alloc = this.alloc();
-                    if (Object.values(alloc).reduce((total, val) => total + val, 0) !== 1) {
+                    if (Object.values(alloc).reduce((total, val) => total + Math.round(val * 100), 0) !== 100) {
                         this.error_message = 'Total allocations must be equal to 100%';
+                        console.error('Invalid portfolio allocation:', alloc);
                         return;
                     }
 
