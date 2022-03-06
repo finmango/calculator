@@ -102,6 +102,35 @@ gulp.task('build:html', function () {
         .pipe(gulp.dest('public'));
 });
 
+gulp.task('build:manifest', function () {
+    const mancha = require('gulp-mancha');
+
+    const stream = gulp
+        .src('src/manifest.webmanifest')
+        .pipe(mancha(Object.assign(
+            {}, pckg, {
+            'theme-primary': pckg.vars.theme.primary,
+            'theme-accent': pckg.vars.theme.accent,
+            'theme-background': pckg.vars.theme.background,
+            'theme-text-on-background': pckg.vars.theme['text-on-background']
+        })));
+
+    return stream.pipe(gulp.dest('public'))
+});
+
+gulp.task('build:logo', function () {
+    const jimp = require('gulp-jimp');
+    const imagesizes = [64, 128, 512];
+    return gulp.src('src/static/logo.png')
+        .pipe(jimp(
+            imagesizes.reduce(function (acc, size) {
+                acc['-' + size] = { resize: { width: size } };
+                return acc;
+            }, {})
+        ))
+        .pipe(gulp.dest('public/static'));
+});
+
 gulp.task('build:ts', function () {
     const ts = require('gulp-typescript');
     return gulp.src('src/**/*.ts')
@@ -114,7 +143,7 @@ gulp.task('build:ts', function () {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build:all', gulp.series('build:deps', 'build:css', 'build:html', 'build:ts'));
+gulp.task('build:all', gulp.series('build:deps', 'build:css', 'build:logo', 'build:manifest', 'build:html', 'build:ts'));
 
 
 // Copy tasks
